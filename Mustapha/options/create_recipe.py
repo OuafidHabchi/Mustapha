@@ -36,7 +36,7 @@ def create_recipe_page():
         
         if st.button("Confirm Main Step"):
             st.session_state.current_main_step = selected_main_step
-            st.session_state.sub_steps = []  # Reset sub-steps
+            st.session_state.sub_steps = []  # Reset sub-steps when a new main step is added
             st.success(f"Main step '{selected_main_step}' selected. Now add sub-steps below.")
 
     # Add Sub-Step section for the selected main step
@@ -79,14 +79,6 @@ def create_recipe_page():
             })
             st.success(f"Sub-step '{selected_sub_step}' added to '{st.session_state.current_main_step}'")
 
-        # Display current sub-steps
-        if st.session_state.sub_steps:
-            st.write("### Current Sub-Steps")
-            for idx, sub_step in enumerate(st.session_state.sub_steps, start=1):
-                st.markdown(f"**Sub-Step {idx}: {sub_step['sub_step']}**")
-                for param, value in sub_step["parameters"].items():
-                    st.markdown(f"- {param}: {value}")
-
         # Button to finalize main step
         if st.button("Finalize Main Step"):
             st.session_state.steps.append({
@@ -97,7 +89,7 @@ def create_recipe_page():
             st.session_state.current_main_step = None  # Reset for a new main step
             st.session_state.sub_steps = []  # Clear sub-steps for next main step
 
-    # Review Recipe Sequence
+    # Recipe Steps Overview (only shows the complete recipe structure)
     if st.session_state.steps:
         st.write("### Recipe Steps Overview")
         for idx, step in enumerate(st.session_state.steps, start=1):
