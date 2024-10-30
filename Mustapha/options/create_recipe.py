@@ -17,28 +17,31 @@ def create_recipe_page():
         st.session_state.current_main_step = None
     if "sub_steps" not in st.session_state:
         st.session_state.sub_steps = []
+    if "recipe_started" not in st.session_state:
+        st.session_state.recipe_started = False
 
-    # Input for recipe name
-    recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
+    # Recipe name section
+    if not st.session_state.recipe_started:
+        st.write("### Recipe Details")
+        recipe_name = st.text_input("Recipe Name")
+        if st.button("Start Recipe"):
+            st.session_state.recipe_started = True
+            st.session_state.recipe_name = recipe_name
 
-    # Button to add a new Main Step
-    if st.button("Add Main Step"):
-        st.session_state.current_main_step = None
-        st.session_state.sub_steps = []  # Clear sub-steps when a new main step is added
-
-    # Display Main Step options if "Add Main Step" is clicked
-    if st.session_state.current_main_step is None:
+    # Add Main Step section
+    if st.session_state.recipe_started and not st.session_state.current_main_step:
+        st.markdown("<h3 style='color:#4a90e2;'>Add a New Main Step</h3>", unsafe_allow_html=True)
         main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-        selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
+        selected_main_step = st.selectbox("Select Main Step", options=main_step_options, key="main_step_select")
         
-        # Button to confirm and add the selected main step
         if st.button("Confirm Main Step"):
             st.session_state.current_main_step = selected_main_step
-            st.success(f"Main step '{selected_main_step}' selected! Now add sub-steps.")
+            st.session_state.sub_steps = []  # Reset sub-steps
+            st.success(f"Main step '{selected_main_step}' selected. Now add sub-steps below.")
 
-    # Show Sub-Step options if a main step is selected
+    # Add Sub-Step section for the selected main step
     if st.session_state.current_main_step:
-        st.markdown(f"**Adding sub-steps for Main Step: {st.session_state.current_main_step}**")
+        st.markdown(f"<h4 style='color:#7c83fd;'>Adding Sub-Steps to: {st.session_state.current_main_step}</h4>", unsafe_allow_html=True)
 
         # Define sub-step options and parameters based on selected main step
         if st.session_state.current_main_step == "Dry Mixing":
@@ -63,23 +66,20 @@ def create_recipe_page():
                 "Sub-step 2.3": ["Setting C"]
             }
 
-        # Select Sub-Step
+        # Select and add sub-step with parameters
         selected_sub_step = st.selectbox("Select Sub-Step", options=sub_step_options)
-
-        # Input fields for parameters based on the selected sub-step
         parameters = {}
         for param in parameters_mapping.get(selected_sub_step, []):
-            parameters[param] = st.text_input(f"{param} for {selected_sub_step}")
+            parameters[param] = st.text_input(f"{param} for {selected_sub_step}", key=f"{selected_sub_step}_{param}")
 
-        # Button to add the sub-step with parameters
         if st.button("Add Sub-Step"):
             st.session_state.sub_steps.append({
                 "sub_step": selected_sub_step,
                 "parameters": parameters
             })
-            st.success(f"Sub-step '{selected_sub_step}' added to '{st.session_state.current_main_step}'!")
+            st.success(f"Sub-step '{selected_sub_step}' added to '{st.session_state.current_main_step}'")
 
-        # Display current sub-steps for the selected main step
+        # Display current sub-steps
         if st.session_state.sub_steps:
             st.write("### Current Sub-Steps")
             for idx, sub_step in enumerate(st.session_state.sub_steps, start=1):
@@ -87,30 +87,31 @@ def create_recipe_page():
                 for param, value in sub_step["parameters"].items():
                     st.markdown(f"- {param}: {value}")
 
-        # Button to finalize the main step with its sub-steps and add to the steps list
+        # Button to finalize main step
         if st.button("Finalize Main Step"):
             st.session_state.steps.append({
                 "main_step": st.session_state.current_main_step,
                 "sub_steps": st.session_state.sub_steps
             })
             st.success(f"Main step '{st.session_state.current_main_step}' added to recipe!")
-            st.session_state.current_main_step = None  # Reset to allow adding a new main step
-            st.session_state.sub_steps = []  # Reset sub-steps for new main steps
+            st.session_state.current_main_step = None  # Reset for a new main step
+            st.session_state.sub_steps = []  # Clear sub-steps for next main step
 
-    # Display the entire recipe sequence for review
-    st.write("### Recipe Steps Overview")
-    for idx, step in enumerate(st.session_state.steps, start=1):
-        st.markdown(f"**Step {idx}: Main Step - {step['main_step']}**")
-        for sub_idx, sub_step in enumerate(step["sub_steps"], start=1):
-            st.markdown(f"- Sub-Step {sub_idx}: {sub_step['sub_step']}")
-            for param, value in sub_step["parameters"].items():
-                st.markdown(f"  - {param}: {value}")
+    # Review Recipe Sequence
+    if st.session_state.steps:
+        st.write("### Recipe Steps Overview")
+        for idx, step in enumerate(st.session_state.steps, start=1):
+            st.markdown(f"**Step {idx}: Main Step - {step['main_step']}**")
+            for sub_idx, sub_step in enumerate(step["sub_steps"], start=1):
+                st.markdown(f"- Sub-Step {sub_idx}: {sub_step['sub_step']}")
+                for param, value in sub_step["parameters"].items():
+                    st.markdown(f"  - {param}: {value}")
 
     # Submit Recipe button
-    if st.button("Submit Recipe"):
+    if st.session_state.steps and st.button("Submit Recipe"):
         recipe_data = {
-            "recipe_id": recipe_name.lower().replace(" ", "_"),
-            "recipe_name": recipe_name,
+            "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
+            "recipe_name": st.session_state.recipe_name,
             "steps": st.session_state.steps,
             "created_at": datetime.now(),
             "updated_at": datetime.now()
@@ -120,6 +121,7 @@ def create_recipe_page():
         st.session_state.steps = []  # Clear steps after submission
         st.session_state.current_main_step = None
         st.session_state.sub_steps = []
+        st.session_state.recipe_started = False
 
     # Optional: Back to Welcome Page button
     if st.button("Back to Welcome Page"):
