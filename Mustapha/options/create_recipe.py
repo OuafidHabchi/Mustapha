@@ -93,11 +93,13 @@ def create_recipe_page():
     if st.session_state.steps:
         st.write("### Recipe Steps Overview")
         for idx, step in enumerate(st.session_state.steps, start=1):
-            st.markdown(f"**Step {idx}: Main Step - {step['main_step']}**")
+            # Main Step Styling: Blue and Bold
+            st.markdown(f"<div style='color:blue; font-size:1.2em; font-weight:bold;'>Step {idx}: Main Step - {step['main_step']}</div>", unsafe_allow_html=True)
+            # Sub-Step Styling: Bold
             for sub_idx, sub_step in enumerate(step["sub_steps"], start=1):
-                st.markdown(f"- Sub-Step {sub_idx}: {sub_step['sub_step']}")
+                st.markdown(f"<div style='font-weight:bold; margin-left: 20px;'>Sub-Step {sub_idx}: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
                 for param, value in sub_step["parameters"].items():
-                    st.markdown(f"  - {param}: {value}")
+                    st.markdown(f"<div style='margin-left: 40px;'>• {param}: {value}</div>", unsafe_allow_html=True)
 
     # Submit Recipe button
     if st.session_state.steps and st.button("Submit Recipe"):
