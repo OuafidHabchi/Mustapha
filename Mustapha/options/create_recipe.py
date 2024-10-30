@@ -19,7 +19,7 @@ def create_recipe_page():
 
     # Main step selection
     main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-    selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
+    selected_main_step = st.selectbox(f"## Select Main Step", options=main_step_options)
     st.session_state.main_step = selected_main_step
 
     # Define sub-step options and parameters based on selected main step
