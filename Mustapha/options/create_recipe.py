@@ -17,10 +17,13 @@ def create_recipe_page():
     # Input for recipe name
     recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
 
-    # Main step selection with distinct styling
-    main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-    selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
-    st.session_state.main_step = selected_main_step
+    # Main Step Input Section
+    with st.container():
+        st.markdown("<div style='padding:10px; border:2px solid #4a90e2; border-radius:10px; background-color:#e9f4ff;'><h3 style='color:#4a90e2;'>Main Step</h3></div>", unsafe_allow_html=True)
+        
+        main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
+        selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
+        st.session_state.main_step = selected_main_step
 
     # Define sub-step options and parameters based on selected main step
     if st.session_state.main_step == "Dry Mixing":
@@ -45,14 +48,17 @@ def create_recipe_page():
             "Sub-step 2.3": ["Setting C"]
         }
 
-    # Sub-step selection
-    selected_sub_step = st.selectbox("Select Sub-Step", options=sub_step_options)
-    st.session_state.sub_step = selected_sub_step
+    # Sub-Step Input Section
+    with st.container():
+        st.markdown("<div style='padding:10px; border:2px solid #7c83fd; border-radius:10px; background-color:#eef1ff;'><h4 style='color:#7c83fd;'>Sub-Step</h4></div>", unsafe_allow_html=True)
+        
+        selected_sub_step = st.selectbox("Select Sub-Step", options=sub_step_options)
+        st.session_state.sub_step = selected_sub_step
 
-    # Display parameter fields based on selected sub-step
-    parameters = {}
-    for param in parameters_mapping.get(st.session_state.sub_step, []):
-        parameters[param] = st.text_input(param, value="")
+        # Display parameter fields based on selected sub-step
+        parameters = {}
+        for param in parameters_mapping.get(st.session_state.sub_step, []):
+            parameters[param] = st.text_input(param, value="")
 
     # Add Sub-Step button
     if st.button("Add Sub-Step"):
@@ -86,7 +92,7 @@ def create_recipe_page():
         for sub_step in step["sub_steps"]:
             st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
             for param, value in sub_step["parameters"].items():
-                st.markdown(f"<div style='color:grey; margin-left: 40px;'>• {param}: {value}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='color:grey;'>&emsp;&emsp;• {param}: {value}</div>", unsafe_allow_html=True)
 
     # Submit Recipe button
     if st.button("Submit Recipe"):
