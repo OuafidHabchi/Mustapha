@@ -19,6 +19,8 @@ def create_recipe_page():
         st.session_state.sub_steps = []
     if "recipe_started" not in st.session_state:
         st.session_state.recipe_started = False
+    if "show_recipe_overview" not in st.session_state:
+        st.session_state.show_recipe_overview = False
 
     # Recipe name section
     if not st.session_state.recipe_started:
@@ -89,8 +91,12 @@ def create_recipe_page():
             st.session_state.current_main_step = None  # Reset for a new main step
             st.session_state.sub_steps = []  # Clear sub-steps for next main step
 
-    # Recipe Steps Overview (only shows the complete recipe structure)
-    if st.session_state.steps:
+    # Button to toggle recipe overview display
+    if st.button("View Recipe"):
+        st.session_state.show_recipe_overview = not st.session_state.show_recipe_overview
+
+    # Conditionally display the Recipe Steps Overview based on the toggle
+    if st.session_state.show_recipe_overview and st.session_state.steps:
         st.write("### Recipe Steps Overview")
         for idx, step in enumerate(st.session_state.steps, start=1):
             # Main Step Styling: Blue and Bold
@@ -116,6 +122,7 @@ def create_recipe_page():
         st.session_state.current_main_step = None
         st.session_state.sub_steps = []
         st.session_state.recipe_started = False
+        st.session_state.show_recipe_overview = False
 
     # Optional: Back to Welcome Page button
     if st.button("Back to Welcome Page"):
