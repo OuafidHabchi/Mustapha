@@ -26,9 +26,12 @@ def create_recipe_page():
     with st.expander("Recipe Details", expanded=not st.session_state.recipe_started):
         recipe_name = st.text_input("Enter Recipe Name")
         if st.button("Start Recipe", key="start_recipe"):
-            st.session_state.recipe_started = True
-            st.session_state.recipe_name = recipe_name
-            st.success("Recipe started! Use 'Add Main Step' to begin.")
+            if recipe_name:
+                st.session_state.recipe_started = True
+                st.session_state.recipe_name = recipe_name
+                st.success("Recipe started! Use 'Add Main Step' to begin.")
+            else:
+                st.error("Please enter a recipe name to start.")
 
     # Main Step selection and sub-steps addition
     if st.session_state.current_main_step:
@@ -88,37 +91,38 @@ def create_recipe_page():
                     st.session_state.current_main_step = None  # Reset to show "Add Main Step" button again
                     st.session_state.sub_steps = []  # Clear sub-steps for next main step
 
-    # Persistent Bottom Buttons Section
-    st.markdown("---")
-    col1, col2, col3 = st.columns(3)
+    # Persistent Bottom Buttons Section (only show if recipe has started)
+    if st.session_state.recipe_started:
+        st.markdown("---")
+        col1, col2, col3 = st.columns(3)
 
-    # Button to add a new Main Step
-    with col1:
-        if st.button("➕ Add Main Step", key="bottom_add_main_step"):
-            st.session_state.current_main_step = "new_step"
+        # Button to add a new Main Step
+        with col1:
+            if st.button("➕ Add Main Step", key="bottom_add_main_step"):
+                st.session_state.current_main_step = "new_step"
 
-    # Toggle button for Recipe Overview
-    with col2:
-        if st.button("📄 View Recipe Overview", key="view_recipe"):
-            st.session_state.show_recipe_overview = not st.session_state.show_recipe_overview
+        # Toggle button for Recipe Overview
+        with col2:
+            if st.button("📄 View Recipe Overview", key="view_recipe"):
+                st.session_state.show_recipe_overview = not st.session_state.show_recipe_overview
 
-    # Submit Recipe button
-    with col3:
-        if st.button("✅ Submit Recipe", key="submit_recipe"):
-            recipe_data = {
-                "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
-                "recipe_name": st.session_state.recipe_name,
-                "steps": st.session_state.steps,
-                "created_at": datetime.now(),
-                "updated_at": datetime.now()
-            }
-            collection.insert_one(recipe_data)
-            st.success("Recipe submitted successfully!")
-            st.session_state.steps = []  # Clear steps after submission
-            st.session_state.current_main_step = None
-            st.session_state.sub_steps = []
-            st.session_state.recipe_started = False
-            st.session_state.show_recipe_overview = False
+        # Submit Recipe button
+        with col3:
+            if st.button("✅ Submit Recipe", key="submit_recipe"):
+                recipe_data = {
+                    "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
+                    "recipe_name": st.session_state.recipe_name,
+                    "steps": st.session_state.steps,
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now()
+                }
+                collection.insert_one(recipe_data)
+                st.success("Recipe submitted successfully!")
+                st.session_state.steps = []  # Clear steps after submission
+                st.session_state.current_main_step = None
+                st.session_state.sub_steps = []
+                st.session_state.recipe_started = False
+                st.session_state.show_recipe_overview = False
 
     # Conditionally display the Recipe Steps Overview
     if st.session_state.show_recipe_overview and st.session_state.steps:
