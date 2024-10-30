@@ -10,80 +10,101 @@ collection = db["create"]
 def create_recipe_page():
     st.title("Create a New Recipe")
 
-    # Ensure 'steps' is initialized in session state upon each call
+    # Initialize session states
     if "steps" not in st.session_state:
         st.session_state.steps = []
+    if "current_main_step" not in st.session_state:
+        st.session_state.current_main_step = None
+    if "sub_steps" not in st.session_state:
+        st.session_state.sub_steps = []
 
     # Input for recipe name
     recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
 
-    # Main Step Input Section
-    with st.container():
-        st.markdown("<div style='padding:10px; border:2px solid #4a90e2; border-radius:10px; background-color:#e9f4ff;'><h3 style='color:#4a90e2;'>Main Step</h3></div>", unsafe_allow_html=True)
-        
+    # Button to add a new Main Step
+    if st.button("Add Main Step"):
+        st.session_state.current_main_step = None
+        st.session_state.sub_steps = []  # Clear sub-steps when a new main step is added
+
+    # Display Main Step options if "Add Main Step" is clicked
+    if st.session_state.current_main_step is None:
         main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
         selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
-        st.session_state.main_step = selected_main_step
-
-    # Define sub-step options and parameters based on selected main step
-    if st.session_state.main_step == "Dry Mixing":
-        sub_step_options = ["Mixing/Lubrication Steps", "Milling Steps", "Manual Sieving Steps"]
-        parameters_mapping = {
-            "Mixing/Lubrication Steps": ["Blender Size", "Mixing Time", "Mixing Speed"],
-            "Milling Steps": ["Comil Model", "Impeller Type", "Sieve Size/Type", "Impeller Speed"],
-            "Manual Sieving Steps": ["Screen Size"]
-        }
-    elif st.session_state.main_step == "autre etape 1":
-        sub_step_options = ["Sub-step 1.1", "Sub-step 1.2", "Sub-step 1.3"]
-        parameters_mapping = {
-            "Sub-step 1.1": ["Param 1"],
-            "Sub-step 1.2": ["Param 2"],
-            "Sub-step 1.3": ["Param 3"]
-        }
-    elif st.session_state.main_step == "autre etape 2":
-        sub_step_options = ["Sub-step 2.1", "Sub-step 2.2", "Sub-step 2.3"]
-        parameters_mapping = {
-            "Sub-step 2.1": ["Setting A"],
-            "Sub-step 2.2": ["Setting B"],
-            "Sub-step 2.3": ["Setting C"]
-        }
-
-    # Sub-Step Input Section
-    with st.container():
-        st.markdown("<div style='padding:10px; border:2px solid #7c83fd; border-radius:10px; background-color:#eef1ff;'><h4 style='color:#7c83fd;'>Sub-Step</h4></div>", unsafe_allow_html=True)
         
+        # Button to confirm and add the selected main step
+        if st.button("Confirm Main Step"):
+            st.session_state.current_main_step = selected_main_step
+            st.success(f"Main step '{selected_main_step}' selected! Now add sub-steps.")
+
+    # Show Sub-Step options if a main step is selected
+    if st.session_state.current_main_step:
+        st.markdown(f"**Adding sub-steps for Main Step: {st.session_state.current_main_step}**")
+
+        # Define sub-step options and parameters based on selected main step
+        if st.session_state.current_main_step == "Dry Mixing":
+            sub_step_options = ["Mixing/Lubrication Steps", "Milling Steps", "Manual Sieving Steps"]
+            parameters_mapping = {
+                "Mixing/Lubrication Steps": ["Blender Size", "Mixing Time", "Mixing Speed"],
+                "Milling Steps": ["Comil Model", "Impeller Type", "Sieve Size/Type", "Impeller Speed"],
+                "Manual Sieving Steps": ["Screen Size"]
+            }
+        elif st.session_state.current_main_step == "autre etape 1":
+            sub_step_options = ["Sub-step 1.1", "Sub-step 1.2", "Sub-step 1.3"]
+            parameters_mapping = {
+                "Sub-step 1.1": ["Param 1"],
+                "Sub-step 1.2": ["Param 2"],
+                "Sub-step 1.3": ["Param 3"]
+            }
+        elif st.session_state.current_main_step == "autre etape 2":
+            sub_step_options = ["Sub-step 2.1", "Sub-step 2.2", "Sub-step 2.3"]
+            parameters_mapping = {
+                "Sub-step 2.1": ["Setting A"],
+                "Sub-step 2.2": ["Setting B"],
+                "Sub-step 2.3": ["Setting C"]
+            }
+
+        # Select Sub-Step
         selected_sub_step = st.selectbox("Select Sub-Step", options=sub_step_options)
-        st.session_state.sub_step = selected_sub_step
 
-        # Display parameter fields based on selected sub-step
+        # Input fields for parameters based on the selected sub-step
         parameters = {}
-        for param in parameters_mapping.get(st.session_state.sub_step, []):
-            parameters[param] = st.text_input(param, value="")
+        for param in parameters_mapping.get(selected_sub_step, []):
+            parameters[param] = st.text_input(f"{param} for {selected_sub_step}")
 
-    # Add Main Step with Sub-Step button
-    if st.button("Add Main Step with Sub-Step"):
-        # Append the main step along with the selected sub-step and parameters as a unique entry
-        # If a main step exists, add the sub-step directly to it, otherwise, create a new main step entry.
-        st.session_state.steps.append({
-            "main_step": st.session_state.main_step,
-            "sub_steps": [{
-                "sub_step": st.session_state.sub_step,
+        # Button to add the sub-step with parameters
+        if st.button("Add Sub-Step"):
+            st.session_state.sub_steps.append({
+                "sub_step": selected_sub_step,
                 "parameters": parameters
-            }]
-        })
-        
-        st.success(f"Main step '{st.session_state.main_step}' with sub-step '{st.session_state.sub_step}' added!")
+            })
+            st.success(f"Sub-step '{selected_sub_step}' added to '{st.session_state.current_main_step}'!")
 
-    # Display the current list of steps in a hierarchical structure with visual styling
-    st.write("### Current Recipe Steps")
+        # Display current sub-steps for the selected main step
+        if st.session_state.sub_steps:
+            st.write("### Current Sub-Steps")
+            for idx, sub_step in enumerate(st.session_state.sub_steps, start=1):
+                st.markdown(f"**Sub-Step {idx}: {sub_step['sub_step']}**")
+                for param, value in sub_step["parameters"].items():
+                    st.markdown(f"- {param}: {value}")
+
+        # Button to finalize the main step with its sub-steps and add to the steps list
+        if st.button("Finalize Main Step"):
+            st.session_state.steps.append({
+                "main_step": st.session_state.current_main_step,
+                "sub_steps": st.session_state.sub_steps
+            })
+            st.success(f"Main step '{st.session_state.current_main_step}' added to recipe!")
+            st.session_state.current_main_step = None  # Reset to allow adding a new main step
+            st.session_state.sub_steps = []  # Reset sub-steps for new main steps
+
+    # Display the entire recipe sequence for review
+    st.write("### Recipe Steps Overview")
     for idx, step in enumerate(st.session_state.steps, start=1):
-        # Display main step
-        st.markdown(f"<div style='color:blue; font-size:1.3em; font-weight:bold;'>Step {idx}: Main Step - {step['main_step']}</div>", unsafe_allow_html=True)
-        # Display sub-steps
+        st.markdown(f"**Step {idx}: Main Step - {step['main_step']}**")
         for sub_idx, sub_step in enumerate(step["sub_steps"], start=1):
-            st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step{sub_idx}: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
+            st.markdown(f"- Sub-Step {sub_idx}: {sub_step['sub_step']}")
             for param, value in sub_step["parameters"].items():
-                st.markdown(f"<div style='color:grey;'>&emsp;&emsp;• {param}: {value}</div>", unsafe_allow_html=True)
+                st.markdown(f"  - {param}: {value}")
 
     # Submit Recipe button
     if st.button("Submit Recipe"):
@@ -97,6 +118,8 @@ def create_recipe_page():
         collection.insert_one(recipe_data)
         st.success("Recipe submitted successfully!")
         st.session_state.steps = []  # Clear steps after submission
+        st.session_state.current_main_step = None
+        st.session_state.sub_steps = []
 
     # Optional: Back to Welcome Page button
     if st.button("Back to Welcome Page"):
