@@ -8,7 +8,8 @@ db = client["mustapha"]
 collection = db["create"]
 
 # Initialize session state to store steps
-st.session_state.setdefault("steps", [])
+if "steps" not in st.session_state:
+    st.session_state.steps = []  # Initialize steps as an empty list
 
 def create_recipe_page():
     st.title("Create a New Recipe")
@@ -81,11 +82,11 @@ def create_recipe_page():
     # Display the current list of steps in a hierarchical structure
     st.write("### Current Recipe Steps")
     for step in st.session_state.steps:
-        st.write(f"**Main Step:** {step['main_step']}")
+        st.markdown(f"**Main Step:** <span style='color:blue; font-size: 1.2em;'>{step['main_step']}</span>", unsafe_allow_html=True)
         for sub_step in step["sub_steps"]:
-            st.write(f"  - **Sub-Step:** {sub_step['sub_step']}")
+            st.markdown(f"<span style='color:grey; font-size: 1em;'>&emsp;- Sub-Step: {sub_step['sub_step']}</span>", unsafe_allow_html=True)
             for param, value in sub_step["parameters"].items():
-                st.write(f"    - {param}: {value}")
+                st.markdown(f"<span style='color:grey;'>&emsp;&emsp;• {param}: {value}</span>", unsafe_allow_html=True)
 
     # Submit Recipe button
     if st.button("Submit Recipe"):
