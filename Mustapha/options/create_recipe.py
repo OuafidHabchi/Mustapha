@@ -60,35 +60,23 @@ def create_recipe_page():
         for param in parameters_mapping.get(st.session_state.sub_step, []):
             parameters[param] = st.text_input(param, value="")
 
-    # Add Sub-Step button
-    if st.button("Add Sub-Step"):
-        # Find the selected main step and add a sub-step to it
-        main_step_exists = any(step["main_step"] == st.session_state.main_step for step in st.session_state.steps)
+    # Add Main Step with Sub-Step button
+    if st.button("Add Main Step with Sub-Step"):
+        # Append the main step along with the selected sub-step and parameters as a unique entry
+        st.session_state.steps.append({
+            "main_step": st.session_state.main_step,
+            "sub_steps": [{
+                "sub_step": st.session_state.sub_step,
+                "parameters": parameters
+            }]
+        })
         
-        # If main step exists, append sub-step; otherwise, create it
-        if main_step_exists:
-            for step in st.session_state.steps:
-                if step["main_step"] == st.session_state.main_step:
-                    step["sub_steps"].append({
-                        "sub_step": st.session_state.sub_step,
-                        "parameters": parameters
-                    })
-                    break
-        else:
-            st.session_state.steps.append({
-                "main_step": st.session_state.main_step,
-                "sub_steps": [{
-                    "sub_step": st.session_state.sub_step,
-                    "parameters": parameters
-                }]
-            })
-        
-        st.success(f"Sub-step '{st.session_state.sub_step}' added under main step '{st.session_state.main_step}'!")
+        st.success(f"Main step '{st.session_state.main_step}' with sub-step '{st.session_state.sub_step}' added!")
 
     # Display the current list of steps in a hierarchical structure with visual styling
     st.write("### Current Recipe Steps")
-    for step in st.session_state.steps:
-        st.markdown(f"<div style='color:blue; font-size:1.3em; font-weight:bold;'>Main Step: {step['main_step']}</div>", unsafe_allow_html=True)
+    for idx, step in enumerate(st.session_state.steps, start=1):
+        st.markdown(f"<div style='color:blue; font-size:1.3em; font-weight:bold;'>Step {idx}: Main Step - {step['main_step']}</div>", unsafe_allow_html=True)
         for sub_step in step["sub_steps"]:
             st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
             for param, value in sub_step["parameters"].items():
