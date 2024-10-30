@@ -13,7 +13,7 @@ if st.sidebar.button("View Recipes"):
 
 # Define the Welcome Page
 def welcome_page():
-    st.title("Welcomeeeee to the Recipe Management App")
+    st.title("Welcome to the Recipe Management App")
     st.write("This application helps you create, view, update, and delete recipes.")
     st.write("Use the sidebar to navigate between pages.")
 
