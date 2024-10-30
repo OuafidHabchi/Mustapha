@@ -30,12 +30,12 @@ def create_recipe_page():
             st.session_state.recipe_name = recipe_name
             st.success("Recipe started! Use 'Add Main Step' to begin.")
 
-    # Button to add a new Main Step
+    # Add Main Step section
     if st.session_state.recipe_started and not st.session_state.current_main_step:
         if st.button("➕ Add Main Step"):
             st.session_state.current_main_step = "new_step"  # Temporary to show the expander for main step selection
 
-    # Add Main Step selection and sub-steps
+    # Main Step selection and sub-steps addition
     if st.session_state.current_main_step:
         with st.expander(f"Add Main Step", expanded=True):
             main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
@@ -93,13 +93,41 @@ def create_recipe_page():
                     st.session_state.current_main_step = None  # Reset to show "Add Main Step" button again
                     st.session_state.sub_steps = []  # Clear sub-steps for next main step
 
+    # Persistent Bottom Buttons Section
+    st.markdown("---")
+    col1, col2, col3 = st.columns(3)
+
+    # Button to add a new Main Step
+    with col1:
+        if st.button("➕ Add Main Step"):
+            st.session_state.current_main_step = "new_step"
+
     # Toggle button for Recipe Overview
-    if st.session_state.steps:
+    with col2:
         if st.button("📄 View Recipe Overview"):
             st.session_state.show_recipe_overview = not st.session_state.show_recipe_overview
 
+    # Submit Recipe button
+    with col3:
+        if st.button("✅ Submit Recipe"):
+            recipe_data = {
+                "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
+                "recipe_name": st.session_state.recipe_name,
+                "steps": st.session_state.steps,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now()
+            }
+            collection.insert_one(recipe_data)
+            st.success("Recipe submitted successfully!")
+            st.session_state.steps = []  # Clear steps after submission
+            st.session_state.current_main_step = None
+            st.session_state.sub_steps = []
+            st.session_state.recipe_started = False
+            st.session_state.show_recipe_overview = False
+
     # Conditionally display the Recipe Steps Overview
-    if st.session_state.show_recipe_overview:
+    if st.session_state.show_recipe_overview and st.session_state.steps:
+        st.markdown("---")
         with st.expander("Recipe Steps Overview", expanded=True):
             for idx, step in enumerate(st.session_state.steps, start=1):
                 # Main Step Styling
@@ -109,26 +137,3 @@ def create_recipe_page():
                     st.markdown(f"<div style='font-weight:bold; margin-left: 20px;'>Sub-Step {sub_idx}: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
                     for param, value in sub_step["parameters"].items():
                         st.markdown(f"<div style='margin-left: 40px;'>• {param}: {value}</div>", unsafe_allow_html=True)
-
-    # Submit Recipe button
-    if st.session_state.steps:
-        with st.container():
-            if st.button("✅ Submit Recipe"):
-                recipe_data = {
-                    "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
-                    "recipe_name": st.session_state.recipe_name,
-                    "steps": st.session_state.steps,
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now()
-                }
-                collection.insert_one(recipe_data)
-                st.success("Recipe submitted successfully!")
-                st.session_state.steps = []  # Clear steps after submission
-                st.session_state.current_main_step = None
-                st.session_state.sub_steps = []
-                st.session_state.recipe_started = False
-                st.session_state.show_recipe_overview = False
-
-    # Back to Welcome Page button
-    if st.button("🏠 Back to Welcome Page"):
-        st.session_state["page"] = "welcome"
