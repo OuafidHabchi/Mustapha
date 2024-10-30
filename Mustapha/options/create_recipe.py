@@ -7,11 +7,9 @@ client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
 
-# Initialize session state to store steps and parameters
-if "steps" not in st.session_state:
-    st.session_state.steps = []
-if "parameters" not in st.session_state:
-    st.session_state.parameters = {}  # Ensure parameters are initialized
+# Initialize session state to store steps and ensure parameters is a dictionary
+st.session_state.setdefault("steps", [])
+st.session_state.setdefault("parameters", {})  # Initialize parameters as an empty dictionary
 
 def create_recipe_page():
     st.title("Create a New Recipe")
