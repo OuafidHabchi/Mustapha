@@ -7,12 +7,12 @@ client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
 
-# Initialize session state to store steps
-if "steps" not in st.session_state:
-    st.session_state.steps = []  # Initialize steps as an empty list
-
 def create_recipe_page():
     st.title("Create a New Recipe")
+
+    # Ensure 'steps' is initialized in session state upon each call
+    if "steps" not in st.session_state:
+        st.session_state.steps = []
 
     # Input for recipe name
     recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
