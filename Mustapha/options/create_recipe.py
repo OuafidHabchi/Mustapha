@@ -30,16 +30,11 @@ def create_recipe_page():
             st.session_state.recipe_name = recipe_name
             st.success("Recipe started! Use 'Add Main Step' to begin.")
 
-    # Add Main Step section
-    if st.session_state.recipe_started and not st.session_state.current_main_step:
-        if st.button("➕ Add Main Step", key="add_main_step"):
-            st.session_state.current_main_step = "new_step"  # Temporary to show the expander for main step selection
-
     # Main Step selection and sub-steps addition
     if st.session_state.current_main_step:
-        with st.expander(f"Add Main Step", expanded=True):
+        with st.expander(f"Add Main Step - {st.session_state.current_main_step}", expanded=True):
             main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-            selected_main_step = st.selectbox("Select a Main Step", options=main_step_options, key="main_step_select")
+            selected_main_step = st.selectbox("Select a Main Step", options=main_step_options)
 
             if st.button("Confirm Main Step", key="confirm_main_step"):
                 st.session_state.current_main_step = selected_main_step
