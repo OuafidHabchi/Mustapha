@@ -7,17 +7,11 @@ client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
 
-# Initialize session state to store steps
+# Initialize session state to store steps and parameters
 if "steps" not in st.session_state:
     st.session_state.steps = []
-
-# Initialize session state for main step, sub-step, and parameters
-if "main_step" not in st.session_state:
-    st.session_state.main_step = ""
-if "sub_step" not in st.session_state:
-    st.session_state.sub_step = ""
 if "parameters" not in st.session_state:
-    st.session_state.parameters = {}
+    st.session_state.parameters = {}  # Ensure parameters are initialized
 
 def create_recipe_page():
     st.title("Create a New Recipe")
@@ -60,7 +54,10 @@ def create_recipe_page():
     # Display parameter fields based on selected sub-step
     parameters = {}
     for param in parameters_mapping.get(st.session_state.sub_step, []):
-        parameters[param] = st.text_input(param, value=st.session_state.parameters.get(param, ""))
+        # Ensure each parameter exists in session state before accessing it
+        if param not in st.session_state.parameters:
+            st.session_state.parameters[param] = ""
+        parameters[param] = st.text_input(param, value=st.session_state.parameters[param])
 
     # Add Sub-Step button
     if st.button("Add Sub-Step"):
