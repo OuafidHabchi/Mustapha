@@ -7,19 +7,18 @@ client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
 
-# Initialize session state to store steps and ensure parameters is a dictionary
+# Initialize session state to store steps
 st.session_state.setdefault("steps", [])
-st.session_state.setdefault("parameters", {})  # Initialize parameters as an empty dictionary
 
 def create_recipe_page():
     st.title("Create a New Recipe")
 
-    # Input for recipe name (remains unchanged between steps)
+    # Input for recipe name
     recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
 
     # Main step selection
     main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-    selected_main_step = st.selectbox(f"## Select Main Step", options=main_step_options)
+    selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
     st.session_state.main_step = selected_main_step
 
     # Define sub-step options and parameters based on selected main step
@@ -52,10 +51,7 @@ def create_recipe_page():
     # Display parameter fields based on selected sub-step
     parameters = {}
     for param in parameters_mapping.get(st.session_state.sub_step, []):
-        # Ensure each parameter exists in session state before accessing it
-        if param not in st.session_state.parameters:
-            st.session_state.parameters[param] = ""
-        parameters[param] = st.text_input(param, value=st.session_state.parameters[param])
+        parameters[param] = st.text_input(param, value="")
 
     # Add Sub-Step button
     if st.button("Add Sub-Step"):
@@ -81,10 +77,6 @@ def create_recipe_page():
             })
         
         st.success(f"Sub-step '{st.session_state.sub_step}' added under main step '{st.session_state.main_step}'!")
-        
-        # Clear sub-step and parameters after adding
-        st.session_state.sub_step = ""
-        st.session_state.parameters = {}
 
     # Display the current list of steps in a hierarchical structure
     st.write("### Current Recipe Steps")
