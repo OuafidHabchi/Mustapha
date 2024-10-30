@@ -22,26 +22,27 @@ def create_recipe_page():
     if "show_recipe_overview" not in st.session_state:
         st.session_state.show_recipe_overview = False
 
-    # Recipe name section
-    with st.expander("Recipe Details", expanded=not st.session_state.recipe_started):
-        recipe_name = st.text_input("Enter Recipe Name")
+    # Start Recipe Section
+    if not st.session_state.recipe_started:
+        st.header("Create Your Recipe")
+        recipe_name = st.text_input("Recipe Name")
         if st.button("Start Recipe", key="start_recipe"):
             if recipe_name:
                 st.session_state.recipe_started = True
                 st.session_state.recipe_name = recipe_name
-                st.success("Recipe started! Use 'Add Main Step' to begin.")
+                st.success("Recipe started! Click 'Add Main Step' to begin.")
             else:
                 st.error("Please enter a recipe name to start.")
 
     # Main Step selection and sub-steps addition
     if st.session_state.current_main_step:
         with st.expander(f"Add Main Step - {st.session_state.current_main_step}", expanded=True):
-            main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
+            main_step_options = ["Dry Mixing", "Autre Etape 1", "Autre Etape 2"]
             selected_main_step = st.selectbox("Select a Main Step", options=main_step_options)
 
             if st.button("Confirm Main Step", key="confirm_main_step"):
                 st.session_state.current_main_step = selected_main_step
-                st.session_state.sub_steps = []  # Clear sub-steps for new main step
+                st.session_state.sub_steps = []  # Reset sub-steps for new main step
                 st.success(f"Main step '{selected_main_step}' selected! Add sub-steps below.")
 
             # Sub-Step section for the selected main step
@@ -56,14 +57,14 @@ def create_recipe_page():
                         "Milling Steps": ["Comil Model", "Impeller Type", "Sieve Size/Type", "Impeller Speed"],
                         "Manual Sieving Steps": ["Screen Size"]
                     }
-                elif st.session_state.current_main_step == "autre etape 1":
+                elif st.session_state.current_main_step == "Autre Etape 1":
                     sub_step_options = ["Sub-step 1.1", "Sub-step 1.2", "Sub-step 1.3"]
                     parameters_mapping = {
                         "Sub-step 1.1": ["Param 1"],
                         "Sub-step 1.2": ["Param 2"],
                         "Sub-step 1.3": ["Param 3"]
                     }
-                elif st.session_state.current_main_step == "autre etape 2":
+                elif st.session_state.current_main_step == "Autre Etape 2":
                     sub_step_options = ["Sub-step 2.1", "Sub-step 2.2", "Sub-step 2.3"]
                     parameters_mapping = {
                         "Sub-step 2.1": ["Setting A"],
