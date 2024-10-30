@@ -63,6 +63,7 @@ def create_recipe_page():
     # Add Main Step with Sub-Step button
     if st.button("Add Main Step with Sub-Step"):
         # Append the main step along with the selected sub-step and parameters as a unique entry
+        # If a main step exists, add the sub-step directly to it, otherwise, create a new main step entry.
         st.session_state.steps.append({
             "main_step": st.session_state.main_step,
             "sub_steps": [{
@@ -76,9 +77,11 @@ def create_recipe_page():
     # Display the current list of steps in a hierarchical structure with visual styling
     st.write("### Current Recipe Steps")
     for idx, step in enumerate(st.session_state.steps, start=1):
+        # Display main step
         st.markdown(f"<div style='color:blue; font-size:1.3em; font-weight:bold;'>Step {idx}: Main Step - {step['main_step']}</div>", unsafe_allow_html=True)
-        for sub_step in step["sub_steps"]:
-            st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
+        # Display sub-steps
+        for sub_idx, sub_step in enumerate(step["sub_steps"], start=1):
+            st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step{sub_idx}: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
             for param, value in sub_step["parameters"].items():
                 st.markdown(f"<div style='color:grey;'>&emsp;&emsp;• {param}: {value}</div>", unsafe_allow_html=True)
 
