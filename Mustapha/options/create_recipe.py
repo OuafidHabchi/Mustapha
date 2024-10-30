@@ -17,9 +17,9 @@ def create_recipe_page():
     # Input for recipe name
     recipe_name = st.text_input("Recipe Name", st.session_state.get("recipe_name", "My Recipe"))
 
-    # Main step selection
+    # Main step selection with distinct styling
     main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-    selected_main_step = st.selectbox(f"## Select Main Step", options=main_step_options)
+    selected_main_step = st.selectbox("Select Main Step", options=main_step_options)
     st.session_state.main_step = selected_main_step
 
     # Define sub-step options and parameters based on selected main step
@@ -79,14 +79,14 @@ def create_recipe_page():
         
         st.success(f"Sub-step '{st.session_state.sub_step}' added under main step '{st.session_state.main_step}'!")
 
-    # Display the current list of steps in a hierarchical structure
+    # Display the current list of steps in a hierarchical structure with visual styling
     st.write("### Current Recipe Steps")
     for step in st.session_state.steps:
-        st.markdown(f"**Main Step:** <span style='color:blue; font-size: 1.2em;'>{step['main_step']}</span>", unsafe_allow_html=True)
+        st.markdown(f"<div style='color:blue; font-size:1.3em; font-weight:bold;'>Main Step: {step['main_step']}</div>", unsafe_allow_html=True)
         for sub_step in step["sub_steps"]:
-            st.markdown(f"<span style='color:grey; font-size: 1em;'>&emsp;- Sub-Step: {sub_step['sub_step']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<div style='color:grey; font-size:1.1em; font-weight:bold; margin-left: 20px;'>Sub-Step: {sub_step['sub_step']}</div>", unsafe_allow_html=True)
             for param, value in sub_step["parameters"].items():
-                st.markdown(f"<span style='color:grey;'>&emsp;&emsp;• {param}: {value}</span>", unsafe_allow_html=True)
+                st.markdown(f"<div style='color:grey; margin-left: 40px;'>• {param}: {value}</div>", unsafe_allow_html=True)
 
     # Submit Recipe button
     if st.button("Submit Recipe"):
