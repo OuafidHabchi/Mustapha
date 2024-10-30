@@ -25,23 +25,23 @@ def create_recipe_page():
     # Recipe name section
     with st.expander("Recipe Details", expanded=not st.session_state.recipe_started):
         recipe_name = st.text_input("Enter Recipe Name")
-        if st.button("Start Recipe"):
+        if st.button("Start Recipe", key="start_recipe"):
             st.session_state.recipe_started = True
             st.session_state.recipe_name = recipe_name
             st.success("Recipe started! Use 'Add Main Step' to begin.")
 
     # Add Main Step section
     if st.session_state.recipe_started and not st.session_state.current_main_step:
-        if st.button("➕ Add Main Step"):
+        if st.button("➕ Add Main Step", key="add_main_step"):
             st.session_state.current_main_step = "new_step"  # Temporary to show the expander for main step selection
 
     # Main Step selection and sub-steps addition
     if st.session_state.current_main_step:
         with st.expander(f"Add Main Step", expanded=True):
             main_step_options = ["Dry Mixing", "autre etape 1", "autre etape 2"]
-            selected_main_step = st.selectbox("Select a Main Step", options=main_step_options)
+            selected_main_step = st.selectbox("Select a Main Step", options=main_step_options, key="main_step_select")
 
-            if st.button("Confirm Main Step"):
+            if st.button("Confirm Main Step", key="confirm_main_step"):
                 st.session_state.current_main_step = selected_main_step
                 st.session_state.sub_steps = []  # Clear sub-steps for new main step
                 st.success(f"Main step '{selected_main_step}' selected! Add sub-steps below.")
@@ -74,9 +74,9 @@ def create_recipe_page():
                     }
 
                 selected_sub_step = st.selectbox("Select Sub-Step", options=sub_step_options)
-                parameters = {param: st.text_input(f"{param}") for param in parameters_mapping.get(selected_sub_step, [])}
+                parameters = {param: st.text_input(f"{param}", key=f"{selected_sub_step}_{param}") for param in parameters_mapping.get(selected_sub_step, [])}
 
-                if st.button("Add Sub-Step"):
+                if st.button("Add Sub-Step", key="add_sub_step"):
                     st.session_state.sub_steps.append({
                         "sub_step": selected_sub_step,
                         "parameters": parameters
@@ -84,7 +84,7 @@ def create_recipe_page():
                     st.success(f"Added sub-step '{selected_sub_step}' to '{st.session_state.current_main_step}'")
 
                 # Finalize main step button
-                if st.button("Finalize Main Step"):
+                if st.button("Finalize Main Step", key="finalize_main_step"):
                     st.session_state.steps.append({
                         "main_step": st.session_state.current_main_step,
                         "sub_steps": st.session_state.sub_steps
@@ -99,17 +99,17 @@ def create_recipe_page():
 
     # Button to add a new Main Step
     with col1:
-        if st.button("➕ Add Main Step"):
+        if st.button("➕ Add Main Step", key="bottom_add_main_step"):
             st.session_state.current_main_step = "new_step"
 
     # Toggle button for Recipe Overview
     with col2:
-        if st.button("📄 View Recipe Overview"):
+        if st.button("📄 View Recipe Overview", key="view_recipe"):
             st.session_state.show_recipe_overview = not st.session_state.show_recipe_overview
 
     # Submit Recipe button
     with col3:
-        if st.button("✅ Submit Recipe"):
+        if st.button("✅ Submit Recipe", key="submit_recipe"):
             recipe_data = {
                 "recipe_id": st.session_state.recipe_name.lower().replace(" ", "_"),
                 "recipe_name": st.session_state.recipe_name,
