@@ -13,8 +13,7 @@ if st.sidebar.button("View Recipes"):
 
 # Define the Welcome Page
 def welcome_page():
-    st.title("Welcome to the Recipe Management App")
-    st.write("This application helps you create, view, update, and delete recipes.")
+    st.title("REQUIRED INFORMATION FOR FIRST SU MASTER CREATION")
     st.write("Use the sidebar to navigate between pages.")
 
 # Display the appropriate page based on session state
