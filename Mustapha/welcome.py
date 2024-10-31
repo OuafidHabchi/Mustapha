@@ -6,9 +6,9 @@ if "page" not in st.session_state:
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-if st.sidebar.button("Create Recipe"):
+if st.sidebar.button("Start"):
     st.session_state["page"] = "create"  # Switch to create recipe page
-if st.sidebar.button("View Recipes"):
+if st.sidebar.button("Recipes finale forme"):
     st.session_state["page"] = "view"  # Switch to view recipes page
 
 # Define the Welcome Page
