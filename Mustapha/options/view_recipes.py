@@ -11,7 +11,7 @@ collection = db["create"]
 def view_recipes_page():
 
     # Charger et afficher le logo avec un chemin absolu
-    logo_path = os.path.abspath("options/images/image.png")
+    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
     try:
         logo = Image.open(logo_path)
         st.sidebar.image(logo, use_column_width=True)
