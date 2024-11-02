@@ -9,13 +9,15 @@ client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
 def view_recipes_page():
+
     # Charger et afficher le logo avec un chemin absolu
     logo_path = os.path.abspath("options/images/image.png")
     try:
         logo = Image.open(logo_path)
         st.sidebar.image(logo, use_column_width=True)
     except FileNotFoundError:
-    st.sidebar.error("Logo image not found. Please check the file path.")
+        st.sidebar.error("Logo image not found. Please check the file path.")
+    
 
     st.title("💊 Pharmaceutical Recipe Viewer")
 
