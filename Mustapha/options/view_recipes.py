@@ -1,24 +1,24 @@
-import streamlit as st
+import streamlit as st 
 from pymongo import MongoClient
 from bson import ObjectId  # Pour convertir l'ID en ObjectId pour MongoDB
 from PIL import Image
 import os
+import pandas as pd
 
 # Connexion à la base de données
 client = MongoClient("mongodb+srv://wafid:wafid@ouafid.aihn5iq.mongodb.net")
 db = client["mustapha"]
 collection = db["create"]
-def view_recipes_page():
 
+def view_recipes_page():
     # Charger et afficher le logo avec un chemin absolu
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
+    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
     try:
         logo = Image.open(logo_path)
         st.sidebar.image(logo, use_column_width=True)
     except FileNotFoundError:
         st.sidebar.error("Logo image not found. Please check the file path.")
     
-
     st.title("💊 Pharmaceutical Recipe Viewer")
 
     # Récupérer toutes les recettes de la collection MongoDB
@@ -59,6 +59,26 @@ def view_recipes_page():
                         unsafe_allow_html=True
                     )
 
+                # Affichage du BOM sous forme de tableau
+                st.write("### 📋 Bill of Materials (BOM)")
+                bom_data = []
+                for section, items in selected_recipe.get("bom_sections", {}).items():
+                    for item in items:
+                        bom_data.append({
+                            "Item Number": item.get("item_number", "N/A"),
+                            "Section": section,
+                            "Item Code": item.get("item_code", "N/A"),
+                            "Item Name": item.get("item_name", "N/A"),
+                            "Quantity": item.get("item_quantity", "N/A")
+                        })
+                
+                # Afficher le BOM sous forme de tableau avec "Item Number" en premier
+                if bom_data:
+                    df_bom = pd.DataFrame(bom_data, columns=["Item Number", "Section", "Item Code", "Item Name", "Quantity"])
+                    st.dataframe(df_bom)
+                else:
+                    st.write("No BOM items available for this recipe.")
+
                 # Affichage des étapes de la recette
                 st.write("### 📚 Recipe Steps")
                 for main_step_index, main_step in enumerate(selected_recipe.get("steps", []), start=1):
@@ -71,12 +91,21 @@ def view_recipes_page():
                         st.write("**Items Used:**")
                         st.markdown("<ul>", unsafe_allow_html=True)
                         for item in selected_items:
-                            # Extraire les détails des items : code, nom et quantité
+                            # Extraire les détails des items : code et nom
                             item_details = item.split(" - ")
                             if len(item_details) == 2:
                                 code, name = item_details
-                                quantity = next((i['item_quantity'] for i in selected_recipe['bom_sections'][section] if i['item_code'] == code), 'N/A')
-                                st.markdown(f"<li><strong>Code:</strong> {code} | <strong>Name:</strong> {name} | <strong>Quantity:</strong> {quantity}</li>", unsafe_allow_html=True)
+                                # Récupérer le numéro et la quantité de l'item dans le BOM
+                                item_number = quantity = None
+                                for section_items in selected_recipe['bom_sections'].values():
+                                    for section_item in section_items:
+                                        if section_item["item_code"] == code:
+                                            item_number = section_item.get("item_number", "N/A")
+                                            quantity = section_item.get("item_quantity", "N/A")
+                                            break
+                                    if quantity:
+                                        break
+                                st.markdown(f"<li><strong>Item Number:</strong> {item_number} | <strong>Code:</strong> {code} | <strong>Name:</strong> {name} | <strong>Quantity:</strong> {quantity}</li>", unsafe_allow_html=True)
                         st.markdown("</ul>", unsafe_allow_html=True)
 
                     parameters = {k: v for k, v in main_step.items() if k not in ["section", "step", "selected_items", "timestamp"]}
@@ -91,4 +120,7 @@ def view_recipes_page():
         except Exception as e:
             st.error(f"An error occurred: {e}")
     else:
-        st.info("Please select a recipe to view its details.")
+        st.info("Please select a recipe to view its details.")    
+
+# Lancer la page d'affichage des recettes
+view_recipes_page()
