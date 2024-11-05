@@ -10,6 +10,8 @@ if st.sidebar.button("Create Recipe"):
     st.session_state["page"] = "create"  # Changer pour la page de création de recette
 if st.sidebar.button("View Recipes"):
     st.session_state["page"] = "view"  # Changer pour la page d'affichage des recettes
+if st.sidebar.button("Update Recipe"):  # Nouveau bouton pour la page de mise à jour
+    st.session_state["page"] = "update"  # Changer pour la page de mise à jour de recette
 
 # Définition de la page d'accueil
 def welcome_page():
@@ -26,3 +28,6 @@ elif st.session_state["page"] == "create":
 elif st.session_state["page"] == "view":
     from options import view_recipes
     view_recipes.view_recipes_page()
+elif st.session_state["page"] == "update":  # Nouvelle page pour mettre à jour la recette
+    from options import update_recipe  # Assurez-vous que le fichier update_recipe.py existe
+    update_recipe.update_recipe_page()  # Appeler la fonction pour afficher la page de mise à jour
