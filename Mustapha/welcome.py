@@ -15,7 +15,7 @@ if st.sidebar.button("Update Recipe"):  # Nouveau bouton pour la page de mise à
 
 # Définition de la page d'accueil
 def welcome_page():
-    st.title("Welcome to the Recipe Management App")
+    st.title("Welcomemmm to the Recipe Management App")
     st.write("This application helps you create, view, update, and delete pharmaceutical recipes.")
     st.write("Use the sidebar to navigate between pages.")
 
