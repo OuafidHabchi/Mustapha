@@ -1,8 +1,6 @@
 import streamlit as st 
 from pymongo import MongoClient
 from bson import ObjectId  # Pour convertir l'ID en ObjectId pour MongoDB
-from PIL import Image
-import os
 import pandas as pd
 
 # Connexion à la base de données
@@ -11,14 +9,6 @@ db = client["mustapha"]
 collection = db["create"]
 
 def view_recipes_page():
-    # Charger et afficher le logo avec un chemin absolu
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
-    try:
-        logo = Image.open(logo_path)
-        st.sidebar.image(logo, use_column_width=True)
-    except FileNotFoundError:
-        st.sidebar.error("Logo image not found. Please check the file path.")
-    
     st.title("💊 Pharmaceutical Recipe Viewer")
 
     # Récupérer toutes les recettes de la collection MongoDB
