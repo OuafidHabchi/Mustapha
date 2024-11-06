@@ -9,7 +9,7 @@ def create_pdf_with_password(product_info, bom_items, steps, password):
     pdf = FPDF()
     pdf.add_page()
     # Add company logo (adjust path, position, and size as needed)
-    logo_path = "options/images/image.png"  # Path to the logo in the current directory structure
+    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
     try:
         pdf.image(logo_path, x=10, y=8, w=30)  # Position (x, y) and width (w), adjust as needed
     except RuntimeError:
