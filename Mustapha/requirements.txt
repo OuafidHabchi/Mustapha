@@ -1,3 +1,4 @@
 streamlit
-pymongo
-Pillow
+fpdf2
+PyPDF2
+pandas
