@@ -32,13 +32,12 @@ def create_pdf_with_password(product_info, bom_items, steps, password):
     pdf.set_font("Arial", size=10)
     pdf.cell(200, 10, txt=" ", ln=True)  # Spacer
 
-    # Table Headers with background color
+    # Table Headers without the "Section" column
     pdf.set_fill_color(200, 200, 200)  # Light gray for headers
     pdf.cell(40, 10, "Item Number", 1, 0, 'C', fill=True)
     pdf.cell(40, 10, "Code", 1, 0, 'C', fill=True)
     pdf.cell(60, 10, "Name", 1, 0, 'C', fill=True)
-    pdf.cell(30, 10, "Quantity", 1, 0, 'C', fill=True)
-    pdf.cell(30, 10, "Section", 1, 1, 'C', fill=True)
+    pdf.cell(30, 10, "Quantity", 1, 1, 'C', fill=True)  # Move to next line
 
     # Table Rows with alternating row colors
     for idx, item in enumerate(bom_items):
@@ -50,8 +49,7 @@ def create_pdf_with_password(product_info, bom_items, steps, password):
         pdf.cell(40, 10, str(item['item_number']), 1, 0, 'C', fill=True)
         pdf.cell(40, 10, item['item_code'], 1, 0, 'C', fill=True)
         pdf.cell(60, 10, item['item_name'], 1, 0, 'C', fill=True)
-        pdf.cell(30, 10, item['item_quantity'], 1, 0, 'C', fill=True)
-        pdf.cell(30, 10, item['section'], 1, 1, 'C', fill=True)
+        pdf.cell(30, 10, item['item_quantity'], 1, 1, 'C', fill=True)  # Move to next line
 
     pdf.cell(200, 10, txt=" ", ln=True)  # Spacer
 
@@ -98,10 +96,11 @@ def create_pdf_with_password(product_info, bom_items, steps, password):
         pdf.cell(200, 10, txt="---------------------------", ln=True)
         pdf.set_text_color(0, 0, 0)
     
-    # Step 2: Output PDF to byte string and load into BytesIO
-    pdf_bytes = pdf.output(dest='S').encode('latin1')  # Generate PDF as byte string
-    pdf_output = BytesIO(pdf_bytes)  # Load into BytesIO for further processing
-    
+    # Step 2: Output PDF to BytesIO instead of using dest='S'
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
     # Step 3: Apply password protection using PyPDF2
     pdf_reader = PdfReader(pdf_output)
     pdf_writer = PdfWriter()
@@ -144,7 +143,6 @@ def page_4():
                 'item_code': item['item_code'],
                 'item_name': item['item_name'],
                 'item_quantity': item['item_quantity'],
-                'section': section
             })
 
     bom_df = pd.DataFrame(bom_items)
@@ -159,7 +157,6 @@ def page_4():
         # List each item in this step with detailed format
         st.write("**Items in this step:**")
         for selected_item in step['selected_items']:
-            # Split to get only the item_code (format: "item_code - item_name")
             item_code = selected_item.split(" - ")[0].strip()
             item_found = False
             for section, items in st.session_state.bom_sections.items():
