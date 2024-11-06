@@ -179,19 +179,28 @@ def page_4():
 
     # Input for PDF password
     password = st.text_input("Enter a password for the PDF:", type="password")
-
+    
+    # Input for PDF filename
+    file_name = st.text_input("Enter the name for your PDF file:", value="complete_overview")
+    
+    # Generate PDF button
     if st.button("Generate PDF"):
         if password:
             pdf_file = create_pdf_with_password(product_info, bom_items, st.session_state.steps, password)
+            
+            # Use the user-specified filename with .pdf extension
+            download_filename = f"{file_name}.pdf"
+            
             st.download_button(
                 label="Download PDF",
                 data=pdf_file,
-                file_name="complete_overview.pdf",
+                file_name=download_filename,
                 mime="application/pdf"
             )
             st.success("PDF generated and secured with your password!")
         else:
             st.warning("Please enter a password to secure the PDF.")
+
 
 # Ensure the data is stored in session state before running page_4
 page_4()
