@@ -4,9 +4,47 @@ from page_2 import page_2
 from page_3 import page_3
 from page_4 import page_4
 
-# Charger le CSS
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Inline CSS
+st.markdown("""
+    <style>
+    /* Barre de progression */
+    .progress-bar {
+        height: 8px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background-color: #4CAF50;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+    /* Boutons de navigation */
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+    .nav-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .nav-button:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
+    }
+    .nav-button:hover:not(:disabled) {
+        background-color: #45a049;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # Initialisation de l'état de session pour le suivi des étapes
 if "current_step" not in st.session_state:
@@ -46,9 +84,7 @@ elif st.session_state.current_step == 4:
 # Conteneur de boutons pour navigation
 st.markdown('<div class="button-container">', unsafe_allow_html=True)
 
-import streamlit as st
-
-# Set up three columns
+# Set up five columns for navigation
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
 # "Précédent" button in the first column
@@ -56,18 +92,11 @@ with col1:
     if st.session_state.current_step > 1:
         st.button("Précédent", key="prev_button", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step - 1), help="Revenir à l'étape précédente")
 
-# Empty space in the second column (if needed for alignment)
-with col2:
-    st.write("")
-    
-with col3:
+# Empty space in the other columns for alignment
+with col2, col3, col4:
     st.write("")
 
-with col4:
-    st.write("")
-
-# "Suivant" button in the third column
+# "Suivant" button in the fifth column
 with col5:
     if st.session_state.current_step < 4:
         st.button("Suivant", key="next_button", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step + 1), help="Aller à l'étape suivante")
-
