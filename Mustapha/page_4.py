@@ -2,7 +2,8 @@ import streamlit as st
 from fpdf import FPDF
 from PyPDF2 import PdfWriter, PdfReader
 from io import BytesIO
-import pandas as pd
+import pandas as pd 
+import os  
 
 def create_pdf_with_password(product_info, bom_items, steps, password):
     # Step 1: Generate the PDF content with FPDF
