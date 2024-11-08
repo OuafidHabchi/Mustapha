@@ -4,17 +4,15 @@ from page_2 import page_2
 from page_3 import page_3
 from page_4 import page_4
 
-# Inline CSS
+# Inline CSS pour le style des boutons et de la barre de progression
 st.markdown("""
     <style>
-    /* Arrière-plan bleu ciel */
     .stApp {
-        background-color: #cfe8ff; /* Bleu ciel pour un effet apaisant */
-        color: #333333; /* Couleur de texte sombre pour contraste */
+        background-color: #cfe8ff;
+        color: #333333;
         font-family: 'Arial', sans-serif;
     }
 
-    /* Barre de progression moderne */
     .progress-bar {
         height: 8px;
         background-color: #cccccc;
@@ -25,35 +23,26 @@ st.markdown("""
     }
     .progress-bar-fill {
         height: 100%;
-        background-color: #28a745; /* Vert pour indiquer la progression */
+        background-color: #28a745;
         width: 0%;
         transition: width 0.4s ease;
     }
 
-    /* Style des boutons */
     .stButton>button {
         padding: 12px 24px;
         border-radius: 8px;
         font-weight: bold;
         font-size: 16px;
     }
-    /* Bouton Précédent rouge */
-    .stButton.prev-button>button {
+    .prev-button {
         background-color: #dc3545;
         color: white;
+        font-weight: bold;
     }
-    .stButton.prev-button>button:hover {
-        background-color: #c82333;
-        color: white;
-    }
-    /* Bouton Suivant vert */
-    .stButton.next-button>button {
+    .next-button {
         background-color: #28a745;
         color: white;
-    }
-    .stButton.next-button>button:hover {
-        background-color: #218838;
-        color: white;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -96,26 +85,14 @@ elif st.session_state.current_step == 4:
 # Conteneur de boutons pour navigation
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
-# "Précédent" button in the first column with custom styling
+# Bouton "Précédent" avec style rouge
 with col1:
-    prev_button_placeholder = st.empty()
     if st.session_state.current_step > 1:
-        with prev_button_placeholder.container():
-            if st.button("Précédent", key="prev_button"):
-                st.session_state.current_step -= 1
-                st.experimental_rerun()
-    st.markdown('<div class="stButton prev-button"></div>', unsafe_allow_html=True)
+        if st.button("Précédent", key="prev_button", help="Revenir à l'étape précédente", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step - 1)):
+            pass  # Met à jour current_step sans redémarrer la page
 
-# Empty space in the other columns for alignment
-with col2, col3, col4:
-    st.write("")
-
-# "Suivant" button in the fifth column with custom styling
+# Bouton "Suivant" avec style vert
 with col5:
-    next_button_placeholder = st.empty()
     if st.session_state.current_step < 4:
-        with next_button_placeholder.container():
-            if st.button("Suivant", key="next_button"):
-                st.session_state.current_step += 1
-                st.experimental_rerun()
-    st.markdown('<div class="stButton next-button"></div>', unsafe_allow_html=True)
+        if st.button("Suivant", key="next_button", help="Aller à l'étape suivante", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step + 1)):
+            pass  # Met à jour current_step sans redémarrer la page
