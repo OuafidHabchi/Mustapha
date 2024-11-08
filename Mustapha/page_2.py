@@ -61,7 +61,7 @@ def page_2():
                 st.session_state.show_new_item_form = False
 
     # Show new item form if "Ajouter l'item" button is clicked
-    if st.button("Ajouter l'item"):
+    if st.button("➕ Ajouter nouvel item"):
         st.session_state.show_new_item_form = True
         st.session_state.edit_item_index = None
         st.session_state.original_item_uuid = None
