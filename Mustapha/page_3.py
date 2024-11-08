@@ -82,7 +82,7 @@ def page_3():
 
         # Display the "Edit Step" button in the second column, on the same line
         with col2:
-            if st.button(f"Edit Step {idx}", key=f"edit_button_{idx}"):
+            if st.button(f"Edit", key=f"edit_button_{idx}"):
                 st.session_state.edit_step_uuid = step['uuid']
                 st.session_state.show_step_form = True
                 st.session_state.step_form_key = step['uuid']
@@ -90,7 +90,7 @@ def page_3():
     sections = ["DRY MIX", "DRY COMPACTION", "HSFB GRANULATION", "COMPRESSION", "ENCAPSULATION", "COATING"]
 
     # Button to initiate adding a new step
-    if st.button("Add Step"):
+    if st.button("Ajouter étape"):
         st.session_state.edit_step_uuid = None
         st.session_state.show_step_form = True
         st.session_state.step_form_key = str(uuid.uuid4())  # Unique key for the form to store values
@@ -121,7 +121,7 @@ def page_3():
             step_fields = initialize_step_fields(step_type, st.session_state.step_form_key, step["step_fields"])
         else:
             # Add mode: new step
-            st.markdown("### New Step")
+            st.markdown("### Nouvelle étape")
             section_for_steps = st.selectbox("Select a Section", sections)
             items_in_section = filter_items_for_section(section_for_steps)
             selected_items = st.multiselect("Select Items for this Step", [f"{item['item_code']} - {item['item_name']}" for item in items_in_section])
@@ -129,7 +129,7 @@ def page_3():
             step_fields = initialize_step_fields(step_type, st.session_state.step_form_key)
 
         # Confirm Step Button
-        if st.button("Confirm Step"):
+        if st.button("Confirmer l'étape"):
             step_details = {
                 "uuid": step.get("uuid", str(uuid.uuid4())) if st.session_state.edit_step_uuid else str(uuid.uuid4()),
                 "section": section_for_steps,
