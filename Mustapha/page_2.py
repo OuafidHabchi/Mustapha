@@ -13,7 +13,7 @@ def page_2():
         </style>
         """, unsafe_allow_html=True)
 
-    st.title("Étape 2 : Ajouter les éléments gggBOM")
+    st.title("Étape 2 : Ajouter les éléments BOM")
 
     # Initialize session state for BOM sections, item entries, and item counter if they don't exist
     if 'bom_sections' not in st.session_state:
