@@ -124,6 +124,18 @@ def create_pdf_with_password(product_info, bom_items, steps, password):
     return protected_pdf_output
 
 def page_4():
+     # CSS pour ajuster la taille des boutons
+    st.markdown("""
+        <style>
+        .stButton > button {
+            padding: 6px 10px;  /* Ajuste le padding pour la taille souhaitée */
+            font-size: 14px;    /* Ajuste la taille de la police */
+            border-radius: 6px; /* Ajoute un peu de bord arrondi pour le style */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    
     st.title("Étape 4 : Complete Overview and PDF Export")
 
     # Ensure data exists in session state
@@ -183,12 +195,12 @@ def page_4():
             st.write(f"**{field}:** {value if value else 'N/A'}")
         st.write(f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
         st.write("---")
+        
+    # Input for PDF filename
+    file_name = st.text_input("Enter the name for your PDF :")
 
     # Input for PDF password
     password = st.text_input("Enter a password for the PDF:", type="password")
-    
-    # Input for PDF filename
-    file_name = st.text_input("Enter the name for your PDF file:", value="complete_overview")
     
     # Generate PDF button
     if st.button("Generate PDF"):
