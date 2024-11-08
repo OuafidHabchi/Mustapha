@@ -2,6 +2,17 @@ import streamlit as st
 import uuid  # Import uuid for generating unique item IDs
 
 def page_2():
+    # CSS pour ajuster la taille des boutons
+    st.markdown("""
+        <style>
+        .stButton > button {
+            padding: 6px 10px;  /* Ajuste le padding pour la taille souhaitée */
+            font-size: 14px;    /* Ajuste la taille de la police */
+            border-radius: 6px; /* Ajoute un peu de bord arrondi pour le style */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     st.title("Étape 2 : Ajouter les éléments BOM")
 
     # Initialize session state for BOM sections, item entries, and item counter if they don't exist
