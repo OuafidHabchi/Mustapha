@@ -7,41 +7,53 @@ from page_4 import page_4
 # Inline CSS
 st.markdown("""
     <style>
-    /* Barre de progression */
+    /* Arrière-plan bleu ciel */
+    .stApp {
+        background-color: #cfe8ff; /* Bleu ciel pour un effet apaisant */
+        color: #333333; /* Couleur de texte sombre pour contraste */
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Barre de progression moderne */
     .progress-bar {
         height: 8px;
-        background-color: #e0e0e0;
-        border-radius: 5px;
+        background-color: #cccccc;
+        border-radius: 10px;
         overflow: hidden;
         margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
     .progress-bar-fill {
         height: 100%;
-        background-color: #4CAF50;
+        background-color: #28a745; /* Vert pour indiquer la progression */
         width: 0%;
-        transition: width 0.3s ease;
+        transition: width 0.4s ease;
     }
-    /* Boutons de navigation */
-    .button-container {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
+
+    /* Style des boutons */
+    .stButton>button {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
     }
-    .nav-button {
-        background-color: #4CAF50;
+    /* Bouton Précédent rouge */
+    .stButton.prev-button>button {
+        background-color: #dc3545;
         color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
     }
-    .nav-button:disabled {
-        background-color: #ddd;
-        cursor: not-allowed;
+    .stButton.prev-button>button:hover {
+        background-color: #c82333;
+        color: white;
     }
-    .nav-button:hover:not(:disabled) {
-        background-color: #45a049;
+    /* Bouton Suivant vert */
+    .stButton.next-button>button {
+        background-color: #28a745;
+        color: white;
+    }
+    .stButton.next-button>button:hover {
+        background-color: #218838;
+        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -82,21 +94,28 @@ elif st.session_state.current_step == 4:
     page_4()
 
 # Conteneur de boutons pour navigation
-st.markdown('<div class="button-container">', unsafe_allow_html=True)
-
-# Set up five columns for navigation
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
-# "Précédent" button in the first column
+# "Précédent" button in the first column with custom styling
 with col1:
+    prev_button_placeholder = st.empty()
     if st.session_state.current_step > 1:
-        st.button("Précédent", key="prev_button", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step - 1), help="Revenir à l'étape précédente")
+        with prev_button_placeholder.container():
+            if st.button("Précédent", key="prev_button"):
+                st.session_state.current_step -= 1
+                st.experimental_rerun()
+    st.markdown('<div class="stButton prev-button"></div>', unsafe_allow_html=True)
 
 # Empty space in the other columns for alignment
 with col2, col3, col4:
     st.write("")
 
-# "Suivant" button in the fifth column
+# "Suivant" button in the fifth column with custom styling
 with col5:
+    next_button_placeholder = st.empty()
     if st.session_state.current_step < 4:
-        st.button("Suivant", key="next_button", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step + 1), help="Aller à l'étape suivante")
+        with next_button_placeholder.container():
+            if st.button("Suivant", key="next_button"):
+                st.session_state.current_step += 1
+                st.experimental_rerun()
+    st.markdown('<div class="stButton next-button"></div>', unsafe_allow_html=True)
