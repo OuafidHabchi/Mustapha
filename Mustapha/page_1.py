@@ -1,6 +1,17 @@
 import streamlit as st
 
 def page_1():
+     # CSS pour ajuster la taille des boutons
+    st.markdown("""
+        <style>
+        .stButton > button {
+            padding: 6px 10px;  /* Ajuste le padding pour la taille souhaitée */
+            font-size: 14px;    /* Ajuste la taille de la police */
+            border-radius: 6px; /* Ajoute un peu de bord arrondi pour le style */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     st.title("Étape 1 : Informations de base")
 
     # Entrée des informations de base
