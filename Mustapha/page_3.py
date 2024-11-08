@@ -90,7 +90,7 @@ def page_3():
     sections = ["DRY MIX", "DRY COMPACTION", "HSFB GRANULATION", "COMPRESSION", "ENCAPSULATION", "COATING"]
 
     # Button to initiate adding a new step
-    if st.button("Ajouter étape"):
+    if st.button(" ➕ Ajouter une nouvelle étape"):
         st.session_state.edit_step_uuid = None
         st.session_state.show_step_form = True
         st.session_state.step_form_key = str(uuid.uuid4())  # Unique key for the form to store values
