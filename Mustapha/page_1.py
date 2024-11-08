@@ -19,7 +19,7 @@ def page_1():
     product_code = st.text_input("Code du produit", value=st.session_state.product_info.get("product_code", ""))
     batch_size = st.text_input("Taille du lot", value=st.session_state.product_info.get("batch_size", ""))
 
-    if st.button("Enregistrer"):
+    if st.button("Enregistreeeeer"):
         if product_name and product_code and batch_size:
             st.session_state.product_info = {
                 "product_name": product_name,
