@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 import uuid  # Import uuid for generating unique step IDs
 
+
 # Mapping of Step 3 sections to BOM sections
 section_mapping = {
     "DRY MIX": ["Pre-Mix", "Final-Mix"],
@@ -48,6 +49,17 @@ def initialize_step_fields(step_type, key, step_fields_data=None):
     return fields
 
 def page_3():
+     # CSS pour ajuster la taille des boutons
+    st.markdown("""
+        <style>
+        .stButton > button {
+            padding: 6px 10px;  /* Ajuste le padding pour la taille souhaitée */
+            font-size: 14px;    /* Ajuste la taille de la police */
+            border-radius: 6px; /* Ajoute un peu de bord arrondi pour le style */
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     st.title("Étape 3 : Créer la recette")
 
     # Initialize session state for steps and form control
