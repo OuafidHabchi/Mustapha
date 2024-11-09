@@ -1,66 +1,68 @@
+import streamlit as st
 from fpdf import FPDF
 from io import BytesIO
+import os
 
 def create_pdf_without_password(product_info, steps, prepared_by):
     # Step 1: Generate the PDF content with FPDF
     pdf = FPDF()
     pdf.add_page()
     
-    # Chemin du logo
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")   
+    # Path to the logo image
+    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
         
-    # Vérifier si le logo existe
+    # Check if the logo exists
     if os.path.exists(logo_path):
-        pdf.image(logo_path, x=10, y=8, w=30)  # Position (x, y) et largeur (w)
-        logo_y_position = 8 + 30  # Ajuste la position y en fonction de la hauteur du logo
+        pdf.image(logo_path, x=10, y=8, w=30)  # Position (x, y) and width (w)
+        logo_y_position = 8 + 30  # Adjust y position based on logo height
     else:
         st.warning("Logo image not found. PDF generated without the logo.")
-        logo_y_position = 10  # Position de repli si le logo est absent
+        logo_y_position = 10  # Fallback position if the logo is absent
     
-    # "Prepared by" sous le logo
-    pdf.set_xy(10, logo_y_position + 5)  # Positionner "Prepared by" juste en dessous du logo
+    # "Prepared by" below the logo
+    pdf.set_xy(10, logo_y_position + 5)
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(200, 10, txt=f"Prepared by: {prepared_by}", ln=True)
     
     # Product Info Section
-    pdf.set_xy(10, logo_y_position + 20)  # Positionner la section d'infos produit après "Prepared by"
-    pdf.set_text_color(0, 102, 204)  # Couleur bleue pour le titre du produit
+    pdf.set_xy(10, logo_y_position + 20)
+    pdf.set_text_color(0, 102, 204)
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(200, 10, txt="Product Information", ln=True, align='C')
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt=" ", ln=True)  # Espacement
+    pdf.cell(200, 10, txt=" ", ln=True)  # Space
     for key, value in product_info.items():
         pdf.cell(200, 10, txt=f"{key}: {value}", ln=True)
     
-    pdf.cell(200, 10, txt=" ", ln=True)  # Espacement
+    pdf.cell(200, 10, txt=" ", ln=True)  # Space
 
     # Recipe Steps with Detailed Item Information
-    pdf.set_text_color(0, 153, 76)  # Couleur verte pour le titre des étapes
+    pdf.set_text_color(0, 153, 76)
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(200, 10, txt="Recipe Steps", ln=True, align='C')
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt=" ", ln=True)  # Espacement
+    pdf.cell(200, 10, txt=" ", ln=True)  # Space
     
     for idx, step in enumerate(steps, start=1):
-        # Entête de l'étape avec une couleur d'arrière-plan
-        pdf.set_fill_color(220, 240, 220)  # Vert clair pour les étapes
+        # Step header with a background color
+        pdf.set_fill_color(220, 240, 220)
         pdf.cell(200, 10, txt=f"Step {idx}: {step['step_type']} in {step['section']}", ln=True, fill=True)
         
-        # Liste des items dans l'étape
+        # Items in the step
         pdf.cell(200, 10, txt="Items in this step:", ln=True)
         for selected_item in step['selected_items']:
             item_text = f"Item: {selected_item}"
             pdf.cell(200, 10, txt=item_text, ln=True)
 
-        # Champs additionnels de l'étape avec indent
+        # Additional step fields with indent
         pdf.set_font("Arial", 'I', 10)
         for field, value in step["step_fields"].items():
             pdf.cell(200, 10, txt=f"  {field}: {value if value else 'N/A'}", ln=True)
         pdf.cell(200, 10, txt=f"  Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
         
-        # Séparateur pour chaque étape
+        # Separator for each step
         pdf.set_text_color(100, 100, 100)
         pdf.cell(200, 10, txt="---------------------------", ln=True)
         pdf.set_text_color(0, 0, 0)
@@ -71,7 +73,6 @@ def create_pdf_without_password(product_info, steps, prepared_by):
     pdf_output.seek(0)
 
     return pdf_output
-
 
 
 def page_4():
@@ -87,19 +88,19 @@ def page_4():
 
     st.title("Étape 4 : Complete Overview and PDF Export")
 
-    # Données par défaut si non présentes
+    # Default data if not present
     if 'product_info' not in st.session_state:
         st.session_state.product_info = {'Name': 'Default Product', 'Batch Size': '1000', 'Category': 'Pharmaceutical'}
     if 'steps' not in st.session_state:
         st.session_state.steps = []
 
-    # Affichage des informations du produit
+    # Display product information
     st.subheader("Product Information")
     product_info = st.session_state.product_info
     for key, value in product_info.items():
         st.write(f"**{key}:** {value}")
 
-    # Affichage des étapes de recette
+    # Display recipe steps
     st.subheader("Recipe Steps")
     for idx, step in enumerate(st.session_state.steps, start=1):
         st.markdown(f"<span style='color: green; font-weight: bold;'>**Step {idx}:** {step['step_type']} in {step['section']}</span>", unsafe_allow_html=True)
@@ -112,15 +113,15 @@ def page_4():
         st.write(f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
         st.write("---")
         
-    # Input pour le nom de la personne qui a préparé la recette
+    # Input for the name of the person who prepared the recipe
     prepared_by = st.text_input("Recipe prepared by:")
 
-    # Bouton pour générer le PDF
+    # Button to generate the PDF
     if st.button("Generate PDF"):
         if prepared_by:
             pdf_file = create_pdf_without_password(product_info, st.session_state.steps, prepared_by)
             
-            # Nommer le fichier PDF en fonction du nom du produit
+            # Name the PDF file based on the product name
             file_name = f"{product_info.get('product_name', 'Recipe')}.pdf"
             
             st.download_button(
@@ -133,5 +134,5 @@ def page_4():
         else:
             st.warning("Please enter the name of the person who prepared the recipe.")
 
-# Exécuter la fonction pour afficher la page 4
+# Run the function to display page 4
 page_4()
