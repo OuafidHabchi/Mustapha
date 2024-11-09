@@ -1,25 +1,6 @@
 import streamlit as st
+import uuid
 from datetime import datetime
-import uuid  # Import uuid for generating unique step IDs
-
-
-# Mapping of Step 3 sections to BOM sections
-section_mapping = {
-    "DRY MIX": ["Pre-Mix", "Final-Mix"],
-    "DRY COMPACTION": ["Pre-Mix", "Final-Mix"],
-    "HSFB GRANULATION": ["Pre-Mix", "Final-Mix", "Granulation Solution/Suspension"],
-    "COMPRESSION": ["Pre-Mix", "Final-Mix"],
-    "ENCAPSULATION": ["Encapsulation"],
-    "COATING": ["Coating Solution/Suspension"]
-}
-
-def filter_items_for_section(step3_section):
-    """Filter items based on the selected Step 3 section using section mapping."""
-    relevant_bom_sections = section_mapping.get(step3_section, [])
-    filtered_items = []
-    for section in relevant_bom_sections:
-        filtered_items.extend(st.session_state.bom_sections.get(section, []))
-    return filtered_items
 
 def initialize_step_fields(step_type, key, step_fields_data=None):
     """Generate specific fields based on step type and populate with saved data if available."""
@@ -49,67 +30,69 @@ def initialize_step_fields(step_type, key, step_fields_data=None):
     return fields
 
 def page_3():
-     # CSS pour ajuster la taille des boutons
+    # Initialiser les variables de session si elles ne sont pas déjà présentes
+    if "show_step_form" not in st.session_state:
+        st.session_state.show_step_form = False
+    if "edit_step_uuid" not in st.session_state:
+        st.session_state.edit_step_uuid = None
+    if "step_form_key" not in st.session_state:
+        st.session_state.step_form_key = str(uuid.uuid4())
+
     st.markdown("""
         <style>
         .stButton > button {
-            padding: 6px 10px;  /* Ajuste le padding pour la taille souhaitée */
-            font-size: 14px;    /* Ajuste la taille de la police */
-            border-radius: 6px; /* Ajoute un peu de bord arrondi pour le style */
+            padding: 6px 10px;
+            font-size: 14px;
+            border-radius: 6px;
         }
         </style>
         """, unsafe_allow_html=True)
-
+    
     st.title("Étape 3 : Créer la recette")
 
-    # Initialize session state for steps and form control
-    if 'steps' not in st.session_state:
-        st.session_state.steps = []
-    if 'edit_step_uuid' not in st.session_state:
-        st.session_state.edit_step_uuid = None
-    if 'show_step_form' not in st.session_state:
-        st.session_state.show_step_form = False
+    # Vérifie si la liste des items a été définie
+    if "bom_items" not in st.session_state or not st.session_state.bom_items:
+        st.warning("Veuillez définir le nombre d'items dans l'étape 2.")
+        return
 
-    # Display a simplified overview of all steps with edit buttons directly under the title
-    st.subheader("Steps Overview")
+    # Afficher une vue d'ensemble simplifiée de toutes les étapes précédentes avec leurs résultats
+    st.subheader("Aperçu des étapes")
     for idx, step in enumerate(st.session_state.steps, start=1):
-        # Create columns for the step text and the edit button
-        col1, col2 = st.columns([8, 1])  # Adjust column width to control layout
+        col1, col2 = st.columns([8, 1])
 
-        # Display step details in the first column
         with col1:
-            st.markdown(f"**Step {idx}:** {step['step_type']} in {step['section']}")
-
-        # Display the "Edit Step" button in the second column, on the same line
+            st.markdown(f"**Étape {idx}:** {step['step_type']} dans {step['section']}")
         with col2:
-            if st.button(f"Edit", key=f"edit_button_{idx}"):
+            if st.button(f"Éditer Étape {idx}", key=f"edit_button_{idx}"):
                 st.session_state.edit_step_uuid = step['uuid']
                 st.session_state.show_step_form = True
                 st.session_state.step_form_key = step['uuid']
 
+    # Définition des sections spécifiques
     sections = ["DRY MIX", "DRY COMPACTION", "HSFB GRANULATION", "COMPRESSION", "ENCAPSULATION", "COATING"]
 
-    # Button to initiate adding a new step
-    if st.button(" ➕ Ajouter une nouvelle étape"):
+    # Bouton pour ajouter une nouvelle étape avec numéro d'étape
+    if st.button("Ajouter une étape"):
         st.session_state.edit_step_uuid = None
         st.session_state.show_step_form = True
-        st.session_state.step_form_key = str(uuid.uuid4())  # Unique key for the form to store values
+        st.session_state.step_form_key = str(uuid.uuid4())
 
-    # Display form if adding a new step or editing an existing one
+    # Formulaire pour ajouter/éditer une étape
     if st.session_state.show_step_form:
-        if st.session_state.edit_step_uuid:
-            # Edit mode: Load the step by UUID
-            step = next((s for s in st.session_state.steps if s['uuid'] == st.session_state.edit_step_uuid), None)
-            st.markdown(f"### Edit Step for Section {step['section']}")
-            section_for_steps = st.selectbox("Select a Section", sections, index=sections.index(step["section"]))
-            items_in_section = filter_items_for_section(section_for_steps)
+        # Calcul du numéro de la nouvelle étape
+        step_number = len(st.session_state.steps) + 1 if st.session_state.edit_step_uuid is None else [i+1 for i, s in enumerate(st.session_state.steps) if s['uuid'] == st.session_state.edit_step_uuid][0]
 
-            # Generate options and filter selected items that still exist in the options
-            options = [f"{item['item_code']} - {item['item_name']}" for item in items_in_section]
+        if st.session_state.edit_step_uuid:
+            # Mode édition : charger l'étape par UUID
+            step = next((s for s in st.session_state.steps if s['uuid'] == st.session_state.edit_step_uuid), None)
+            section_for_steps = st.selectbox("Select a Section", sections, index=sections.index(step["section"]))
+
+            # Liste des items initiaux + résultats des étapes précédentes
+            options = st.session_state.bom_items + [f"Résultat de l'étape {i}" for i in range(1, len(st.session_state.steps) + 1)]
             valid_selected_items = [item for item in step["selected_items"] if item in options]
 
             selected_items = st.multiselect(
-                "Select Items for this Step", 
+                "Sélectionnez les items pour cette étape", 
                 options=options,
                 default=valid_selected_items
             )
@@ -120,15 +103,17 @@ def page_3():
             )
             step_fields = initialize_step_fields(step_type, st.session_state.step_form_key, step["step_fields"])
         else:
-            # Add mode: new step
-            st.markdown("### Nouvelle étape")
+            # Mode ajout : nouvelle étape avec numéro d'étape
+            st.markdown(f"### Nouvelle étape : Étape {step_number}")
             section_for_steps = st.selectbox("Select a Section", sections)
-            items_in_section = filter_items_for_section(section_for_steps)
-            selected_items = st.multiselect("Select Items for this Step", [f"{item['item_code']} - {item['item_name']}" for item in items_in_section])
+
+            # Liste des items initiaux + résultats des étapes précédentes
+            options = st.session_state.bom_items + [f"Résultat de l'étape {i}" for i in range(1, len(st.session_state.steps) + 1)]
+            selected_items = st.multiselect("Sélectionnez les items pour cette étape", options)
             step_type = st.selectbox("Select a Step Type", ["Mixing / Lubrication steps", "Milling steps", "Manual sieving steps", "Dispersion"])
             step_fields = initialize_step_fields(step_type, st.session_state.step_form_key)
 
-        # Confirm Step Button
+        # Confirmation de l'étape
         if st.button("Confirmer l'étape"):
             step_details = {
                 "uuid": step.get("uuid", str(uuid.uuid4())) if st.session_state.edit_step_uuid else str(uuid.uuid4()),
@@ -139,23 +124,19 @@ def page_3():
                 "step_fields": {field: st.session_state.get(f"{field.replace(' ', '_').lower()}_{st.session_state.step_form_key}", "") for field in step_fields}
             }
 
-            # Update or add the step
+            # Ajouter ou mettre à jour l'étape
             if st.session_state.edit_step_uuid:
                 for i, s in enumerate(st.session_state.steps):
                     if s['uuid'] == st.session_state.edit_step_uuid:
                         st.session_state.steps[i] = step_details
-                        st.success("Step updated!")
+                        st.success("Étape mise à jour !")
                         break
                 st.session_state.edit_step_uuid = None
             else:
                 st.session_state.steps.append(step_details)
-                st.success("New Step added!")
+                st.success(f"Nouvelle étape {step_number} ajoutée !")
 
             st.session_state.show_step_form = False
 
-# Run the function to display page 3 if on page 3
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = 3
-
-if st.session_state.current_page == 3:
-    page_3()
+# Appel de la fonction pour afficher la page 3
+page_3()
