@@ -1,7 +1,5 @@
-import streamlit as st
 from fpdf import FPDF
 from io import BytesIO
-import os  
 
 def create_pdf_without_password(product_info, steps, prepared_by):
     # Step 1: Generate the PDF content with FPDF
@@ -69,10 +67,11 @@ def create_pdf_without_password(product_info, steps, prepared_by):
     
     # Output PDF to BytesIO
     pdf_output = BytesIO()
-    pdf_output.write(pdf.output(dest='S').encode('latin1'))
+    pdf.output(pdf_output, dest='F')
     pdf_output.seek(0)
 
     return pdf_output
+
 
 
 def page_4():
