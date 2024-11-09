@@ -4,7 +4,7 @@ from page_2 import page_2
 from page_3 import page_3
 from page_4 import page_4
 
-# Inline CSS pour le style des boutons et de la barre de progression
+# Inline CSS
 st.markdown("""
     <style>
     .stApp {
@@ -12,7 +12,6 @@ st.markdown("""
         color: #333333;
         font-family: 'Arial', sans-serif;
     }
-
     .progress-bar {
         height: 8px;
         background-color: #cccccc;
@@ -27,33 +26,40 @@ st.markdown("""
         width: 0%;
         transition: width 0.4s ease;
     }
-
     .stButton>button {
         padding: 12px 24px;
         border-radius: 8px;
         font-weight: bold;
         font-size: 16px;
     }
-    .prev-button {
+    .stButton.prev-button>button {
         background-color: #dc3545;
         color: white;
-        font-weight: bold;
     }
-    .next-button {
+    .stButton.prev-button>button:hover {
+        background-color: #c82333;
+        color: white;
+    }
+    .stButton.next-button>button {
         background-color: #28a745;
         color: white;
-        font-weight: bold;
+    }
+    .stButton.next-button>button:hover {
+        background-color: #218838;
+        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Initialisation de l'état de session pour le suivi des étapes
+# Initialisation de l'état de session
 if "current_step" not in st.session_state:
     st.session_state.current_step = 1
 if "product_info" not in st.session_state:
     st.session_state.product_info = {}
-if "bom_sections" not in st.session_state:
-    st.session_state.bom_sections = {}
+if "bom_items_count" not in st.session_state:
+    st.session_state.bom_items_count = 0
+if "bom_items" not in st.session_state:
+    st.session_state.bom_items = []
 if "steps" not in st.session_state:
     st.session_state.steps = []
 
@@ -82,17 +88,13 @@ elif st.session_state.current_step == 3:
 elif st.session_state.current_step == 4:
     page_4()
 
-# Conteneur de boutons pour navigation
+# Navigation
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-
-# Bouton "Précédent" avec style rouge
 with col1:
-    if st.session_state.current_step > 1:
-        if st.button("Précédent", key="prev_button", help="Revenir à l'étape précédente", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step - 1)):
-            pass  # Met à jour current_step sans redémarrer la page
-
-# Bouton "Suivant" avec style vert
+    if st.session_state.current_step > 1 and st.button("Précédent", key="prev_button"):
+        st.session_state.current_step -= 1
+        st.experimental_rerun()
 with col5:
-    if st.session_state.current_step < 4:
-        if st.button("Suivant", key="next_button", help="Aller à l'étape suivante", on_click=lambda: setattr(st.session_state, 'current_step', st.session_state.current_step + 1)):
-            pass  # Met à jour current_step sans redémarrer la page
+    if st.session_state.current_step < 4 and st.button("Suivant", key="next_button"):
+        st.session_state.current_step += 1
+        st.experimental_rerun()
