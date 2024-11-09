@@ -11,7 +11,7 @@ def page_2():
         </style>
         """, unsafe_allow_html=True)
     
-    st.title("Étape 2 : Nombre d'items")
+    st.title("Étape 2 : Nombre d'itemmms")
 
     # Saisie du nombre d'items
     item_count = st.number_input("Combien d'items voulez-vous utiliser ?", min_value=1, step=1)
