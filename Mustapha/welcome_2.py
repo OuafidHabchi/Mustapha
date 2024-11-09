@@ -91,10 +91,10 @@ elif st.session_state.current_step == 4:
 # Navigation
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 with col1:
-    if st.session_state.current_step > 1 and st.button("Précédent", key="prev_button"):
-        st.session_state.current_step -= 1
-        st.experimental_rerun()
+    if st.session_state.current_step > 1:
+        if st.button("Précédent", key="prev_button"):
+            st.session_state.current_step -= 1
 with col5:
-    if st.session_state.current_step < 4 and st.button("Suivant", key="next_button"):
-        st.session_state.current_step += 1
-        st.experimental_rerun()
+    if st.session_state.current_step < 4:
+        if st.button("Suivant", key="next_button"):
+            st.session_state.current_step += 1
