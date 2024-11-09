@@ -103,7 +103,7 @@ with col1:
         with prev_button_placeholder.container():
             if st.button("Précédent", key="prev_button"):
                 st.session_state.current_step -= 1
-                st.experimental_rerun()
+                
     st.markdown('<div class="stButton prev-button"></div>', unsafe_allow_html=True)
 
 # Empty space in the other columns for alignment
@@ -117,5 +117,5 @@ with col5:
         with next_button_placeholder.container():
             if st.button("Suivant", key="next_button"):
                 st.session_state.current_step += 1
-                st.experimental_rerun()
+               
     st.markdown('<div class="stButton next-button"></div>', unsafe_allow_html=True)
