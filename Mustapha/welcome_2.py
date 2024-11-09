@@ -98,24 +98,12 @@ col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
 # "Précédent" button in the first column with custom styling
 with col1:
-    prev_button_placeholder = st.empty()
     if st.session_state.current_step > 1:
-        with prev_button_placeholder.container():
-            if st.button("Précédent", key="prev_button"):
-                st.session_state.current_step -= 1
-                
-    st.markdown('<div class="stButton prev-button"></div>', unsafe_allow_html=True)
-
-# Empty space in the other columns for alignment
-with col2, col3, col4:
-    st.write("")
+        if st.button("Précédent", key="prev_button"):
+            st.session_state.current_step -= 1
 
 # "Suivant" button in the fifth column with custom styling
 with col5:
-    next_button_placeholder = st.empty()
     if st.session_state.current_step < 4:
-        with next_button_placeholder.container():
-            if st.button("Suivant", key="next_button"):
-                st.session_state.current_step += 1
-               
-    st.markdown('<div class="stButton next-button"></div>', unsafe_allow_html=True)
+        if st.button("Suivant", key="next_button"):
+            st.session_state.current_step += 1
