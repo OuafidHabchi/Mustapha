@@ -7,14 +7,11 @@ from page_4 import page_4
 # Inline CSS
 st.markdown("""
     <style>
-    /* Arrière-plan bleu ciel */
     .stApp {
-        background-color: #cfe8ff; /* Bleu ciel pour un effet apaisant */
-        color: #333333; /* Couleur de texte sombre pour contraste */
+        background-color: #cfe8ff;
+        color: #333333;
         font-family: 'Arial', sans-serif;
     }
-
-    /* Barre de progression moderne */
     .progress-bar {
         height: 8px;
         background-color: #cccccc;
@@ -25,19 +22,16 @@ st.markdown("""
     }
     .progress-bar-fill {
         height: 100%;
-        background-color: #28a745; /* Vert pour indiquer la progression */
+        background-color: #28a745;
         width: 0%;
         transition: width 0.4s ease;
     }
-
-    /* Style des boutons */
     .stButton>button {
         padding: 12px 24px;
         border-radius: 8px;
         font-weight: bold;
         font-size: 16px;
     }
-    /* Bouton Précédent rouge */
     .stButton.prev-button>button {
         background-color: #dc3545;
         color: white;
@@ -46,7 +40,6 @@ st.markdown("""
         background-color: #c82333;
         color: white;
     }
-    /* Bouton Suivant vert */
     .stButton.next-button>button {
         background-color: #28a745;
         color: white;
@@ -67,6 +60,8 @@ if "bom_sections" not in st.session_state:
     st.session_state.bom_sections = {}
 if "steps" not in st.session_state:
     st.session_state.steps = []
+if "page_updated" not in st.session_state:
+    st.session_state.page_updated = False  # Variable temporaire pour suivre le changement de page
 
 # Fonction pour afficher la barre de progression
 def show_progress():
@@ -101,9 +96,16 @@ with col1:
     if st.session_state.current_step > 1:
         if st.button("Précédent", key="prev_button"):
             st.session_state.current_step -= 1
+            st.session_state.page_updated = True  # Marquer la page comme mise à jour
 
 # "Suivant" button in the fifth column with custom styling
 with col5:
     if st.session_state.current_step < 4:
         if st.button("Suivant", key="next_button"):
             st.session_state.current_step += 1
+            st.session_state.page_updated = True  # Marquer la page comme mise à jour
+
+# Forcer le rafraîchissement si la page a été mise à jour
+if st.session_state.page_updated:
+    st.session_state.page_updated = False  # Réinitialiser la variable
+    st.experimental_rerun()
