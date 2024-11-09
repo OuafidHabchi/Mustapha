@@ -51,7 +51,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Initialisation de l'état de session pour le suivi des étapes
+# Initialize session state for step tracking
 if "current_step" not in st.session_state:
     st.session_state.current_step = 1
 if "product_info" not in st.session_state:
@@ -61,7 +61,7 @@ if "bom_sections" not in st.session_state:
 if "steps" not in st.session_state:
     st.session_state.steps = []
 
-# Fonction pour afficher la barre de progression
+# Function to show the progress bar
 def show_progress():
     progress_percentage = ((st.session_state.current_step - 1) / 3) * 100
     st.markdown(
@@ -73,10 +73,10 @@ def show_progress():
     )
     st.write(f"Étape {st.session_state.current_step} sur 4")
 
-# Affichage de la barre de progression
+# Display the progress bar
 show_progress()
 
-# Chargement de la page en fonction de l'étape actuelle
+# Load the page based on the current step
 if st.session_state.current_step == 1:
     page_1()
 elif st.session_state.current_step == 2:
@@ -86,17 +86,25 @@ elif st.session_state.current_step == 3:
 elif st.session_state.current_step == 4:
     page_4()
 
-# Conteneur de boutons pour navigation
-col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-
-# "Précédent" button in the first column with custom styling
-with col1:
+# Functions to handle button clicks
+def go_previous():
     if st.session_state.current_step > 1:
-        if st.button("Précédent", key="prev_button"):
-            st.session_state.current_step -= 1
+        st.session_state.current_step -= 1
 
-# "Suivant" button in the fifth column with custom styling
-with col5:
+def go_next():
     if st.session_state.current_step < 4:
-        if st.button("Suivant", key="next_button"):
-            st.session_state.current_step += 1
+        st.session_state.current_step += 1
+
+# Navigation container with button layout
+col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])  
+# "Previous" button in the first column with on_click function
+with col1:
+    st.button("Précédent", on_click=go_previous, key="prev_button")
+    
+# Empty space in the other columns for alignment
+with col2, col3, col4:
+    st.write("")
+
+# "Next" button in the fifth column with on_click function
+with col5:
+    st.button("Suivant", on_click=go_next, key="next_button")
