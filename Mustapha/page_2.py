@@ -11,13 +11,13 @@ def page_2():
         </style>
         """, unsafe_allow_html=True)
     
-    st.title("Étape 2 : Nombre d'items")
+    st.title("Number of Items")
 
-    # Saisie du nombre d'items
-    item_count = st.number_input("Combien d'items voulez-vous utiliser ?", min_value=1, step=1)
+    # Input for the number of items
+    item_count = st.number_input("How many items do you want to use?", min_value=1, step=1)
 
-    if st.button("Confirmer"):
+    if st.button("Confirm"):
         st.session_state.bom_items_count = item_count
-        # Générer les items automatiquement de 1 à item_count
+        # Automatically generate items from 1 to item_count
         st.session_state.bom_items = [f"Item {i}" for i in range(1, item_count + 1)]
-        st.success("Nombre d'items enregistré.")
+        st.success("Number of items saved.")
