@@ -9,7 +9,7 @@ def create_pdf_without_password(product_info, steps, prepared_by):
     pdf.add_page()
 
     # Chemin du logo
-    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
+    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
 
     # Vérifier si le logo existe
     if os.path.exists(logo_path):
