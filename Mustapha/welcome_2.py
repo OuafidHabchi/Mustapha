@@ -71,7 +71,7 @@ def show_progress():
         </div>
         """, unsafe_allow_html=True
     )
-    st.write(f"Étape {st.session_state.current_step} sur 4")
+    st.write(f"Step  {st.session_state.current_step} out of 4")
 
 # Display the progress bar
 show_progress()
@@ -99,7 +99,7 @@ def go_next():
 col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])  
 # "Previous" button in the first column with on_click function
 with col1:
-    st.button("Précédent", on_click=go_previous, key="prev_button")
+    st.button("Previous", on_click=go_previous, key="prev_button")
     
 # Empty space in the other columns for alignment
 with col2, col3, col4:
@@ -107,4 +107,4 @@ with col2, col3, col4:
 
 # "Next" button in the fifth column with on_click function
 with col5:
-    st.button("Suivant", on_click=go_next, key="next_button")
+    st.button("Next ", on_click=go_next, key="next_button")
