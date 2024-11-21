@@ -12,7 +12,7 @@ def page_1():
         </style>
         """, unsafe_allow_html=True)
 
-    st.title("Product Information")
+    st.title("Product Informations")
 
     # Input for basic information
     product_name = st.text_input("Product Name", value=st.session_state.product_info.get("product_name", ""))
