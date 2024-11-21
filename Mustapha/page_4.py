@@ -4,78 +4,94 @@ from io import BytesIO
 import os
 
 def create_pdf_without_password(product_info, steps, prepared_by):
-    # Step 1: Generate the PDF content with FPDF
+    """Génère un PDF esthétique avec chaque étape sur une page distincte."""
     pdf = FPDF()
     pdf.add_page()
-    
-    # Path to the logo image
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
-        
-    # Check if the logo exists
+
+    # Chemin du logo
+    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
+
+    # Vérifier si le logo existe
     if os.path.exists(logo_path):
-        pdf.image(logo_path, x=10, y=8, w=30)  # Position (x, y) and width (w)
-        logo_y_position = 8 + 30  # Adjust y position based on logo height
+        pdf.image(logo_path, x=10, y=8, w=30)  # Position (x, y) et largeur (w)
+        logo_y_position = 8 + 30  # Ajuste la position y en fonction de la hauteur du logo
     else:
         st.warning("Logo image not found. PDF generated without the logo.")
-        logo_y_position = 10  # Fallback position if the logo is absent
-    
-    # "Prepared by" below the logo
+        logo_y_position = 10  # Position de repli si le logo est absent
+
+    # "Prepared by" sous le logo
     pdf.set_xy(10, logo_y_position + 5)
     pdf.set_font("Arial", 'B', 12)
+    pdf.set_text_color(0, 0, 128)  # Bleu foncé
     pdf.cell(200, 10, txt=f"Prepared by: {prepared_by}", ln=True)
-    
-    # Product Info Section
+
+    # Section "Product Information"
     pdf.set_xy(10, logo_y_position + 20)
     pdf.set_text_color(0, 102, 204)
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(200, 10, txt="Product Information", ln=True, align='C')
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt=" ", ln=True)  # Space
+    pdf.cell(200, 10, txt=" ", ln=True)  # Espacement
     for key, value in product_info.items():
         pdf.cell(200, 10, txt=f"{key}: {value}", ln=True)
-    
-    pdf.cell(200, 10, txt=" ", ln=True)  # Space
+    pdf.cell(200, 10, txt=" ", ln=True)  # Espacement
 
-    # Recipe Steps with Detailed Item Information
-    pdf.set_text_color(0, 153, 76)
-    pdf.set_font("Arial", 'B', 14)
-    pdf.cell(200, 10, txt="Recipe Steps", ln=True, align='C')
-    pdf.set_text_color(0, 0, 0)
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt=" ", ln=True)  # Space
-    
+    # Section "Recipe Steps"
     for idx, step in enumerate(steps, start=1):
-        # Step header with a background color
-        pdf.set_fill_color(220, 240, 220)
-        pdf.cell(200, 10, txt=f"Step {idx}: {step['step_type']} in {step['section']}", ln=True, fill=True)
-        
-        # Items in the step
-        pdf.cell(200, 10, txt="Items in this step:", ln=True)
-        for selected_item in step['selected_items']:
-            item_text = f"Item: {selected_item}"
-            pdf.cell(200, 10, txt=item_text, ln=True)
+        pdf.add_page()  # Ajouter une nouvelle page pour chaque étape
 
-        # Additional step fields with indent
-        pdf.set_font("Arial", 'I', 10)
-        for field, value in step["step_fields"].items():
-            pdf.cell(200, 10, txt=f"  {field}: {value if value else 'N/A'}", ln=True)
-        pdf.cell(200, 10, txt=f"  Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
-        
-        # Separator for each step
-        pdf.set_text_color(100, 100, 100)
-        pdf.cell(200, 10, txt="---------------------------", ln=True)
-        pdf.set_text_color(0, 0, 0)
-    
+        # Titre de l'étape
+        pdf.set_fill_color(220, 240, 220)  # Vert clair pour le fond
+        pdf.set_text_color(0, 51, 0)  # Vert foncé pour le texte de l'étape
+        pdf.set_font("Arial", 'B', 12)
+        pdf.cell(200, 10, txt=f"Step {idx}:", ln=True, fill=True)
+
+        # Section et type d'étape
+        pdf.set_text_color(0, 102, 204)  # Bleu pour les sous-titres
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(200, 10, txt=f"  Section: {step['section']}", ln=True)
+        pdf.cell(200, 10, txt=f"  Step: {step['step_type']}", ln=True)
+
+        # Items inclus dans l'étape
+        pdf.set_text_color(0, 0, 0)  # Noir pour les items
+        pdf.set_font("Arial", size=11)
+        pdf.cell(200, 10, txt="  Items in this step:", ln=True)
+        for selected_item in step['selected_items']:
+            pdf.cell(200, 10, txt=f"    - {selected_item}", ln=True)
+
+        # Champs additionnels
+        for field, value in step.get("step_fields", {}).items():
+            pdf.cell(200, 10, txt=f"    {field}: {value if value else 'N/A'}", ln=True)
+
+        # Afficher les données des checkboxes
+        if step.get("keep_bag_for_rinsing", False):
+            pdf.set_text_color(255, 69, 0)  # Rouge pour attirer l'attention
+            pdf.cell(200, 10, txt="    Keep Bag for rinsing: Yes", ln=True)
+        if step["step_type"] == "Dispersion":
+            if step.get("use_full_quantity", False):
+                pdf.set_text_color(0, 128, 128)  # Teal
+                pdf.cell(200, 10, txt="    Use full quantity: Yes", ln=True)
+            if step.get("keep_bag_for_rinsing_dispersion", False):
+                pdf.set_text_color(255, 140, 0)  # Orange
+                pdf.cell(200, 10, txt="    Keep Bag for rinsing (Dispersion): Yes", ln=True)
+
+        # Date d'ajout
+        pdf.set_text_color(0, 0, 0)  # Noir
+        pdf.cell(200, 10, txt=f"    Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
+
+        # Espacement entre les sections
+        pdf.cell(200, 10, txt=" ", ln=True)
+
     # Output PDF to BytesIO
     pdf_output = BytesIO()
-    pdf.output(pdf_output, dest='F')
+    pdf_output.write(pdf.output(dest='S').encode('latin1'))
     pdf_output.seek(0)
-
     return pdf_output
 
 
 def page_4():
+    """Affiche les informations finales et permet de générer un PDF."""
     st.markdown("""
         <style>
         .stButton > button {
@@ -86,44 +102,52 @@ def page_4():
         </style>
         """, unsafe_allow_html=True)
 
-    st.title("Étape 4 : Complete Overview and PDF Export")
+    st.title(" Complete Overview ")
 
-    # Default data if not present
+    # Données par défaut si non présentes
     if 'product_info' not in st.session_state:
         st.session_state.product_info = {'Name': 'Default Product', 'Batch Size': '1000', 'Category': 'Pharmaceutical'}
     if 'steps' not in st.session_state:
         st.session_state.steps = []
 
-    # Display product information
+    # Affichage des informations du produit
     st.subheader("Product Information")
     product_info = st.session_state.product_info
     for key, value in product_info.items():
         st.write(f"**{key}:** {value}")
 
-    # Display recipe steps
-    st.subheader("Recipe Steps")
+    # Affichage des étapes de recette
+    st.subheader("Process Steps")
     for idx, step in enumerate(st.session_state.steps, start=1):
-        st.markdown(f"<span style='color: green; font-weight: bold;'>**Step {idx}:** {step['step_type']} in {step['section']}</span>", unsafe_allow_html=True)
+        st.markdown(f"### Step {idx}")
+        st.write(f"**Section:** {step['section']}")
+        st.write(f"**Step:** {step['step_type']}")
         st.write("**Items in this step:**")
         for selected_item in step['selected_items']:
             st.write(f"- {selected_item}")
-
-        for field, value in step["step_fields"].items():
+        for field, value in step.get("step_fields", {}).items():
             st.write(f"**{field}:** {value if value else 'N/A'}")
+
+        # Afficher les données des checkboxes
+        if step.get("keep_bag_for_rinsing", False):
+            st.write("**Keep Bag for rinsing:** Yes")
+        if step["step_type"] == "Dispersion":
+            if step.get("use_full_quantity", False):
+                st.write("**Use full quantity:** Yes")
+            if step.get("keep_bag_for_rinsing_dispersion", False):
+                st.write("**Keep Bag for rinsing (Dispersion):** Yes")
+
         st.write(f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
         st.write("---")
         
-    # Input for the name of the person who prepared the recipe
-    prepared_by = st.text_input("Recipe prepared by:")
+    # Input pour le nom de la personne qui a préparé la recette
+    prepared_by = st.text_input("Process prepared by:")
 
-    # Button to generate the PDF
+    # Bouton pour générer le PDF
     if st.button("Generate PDF"):
         if prepared_by:
             pdf_file = create_pdf_without_password(product_info, st.session_state.steps, prepared_by)
-            
-            # Name the PDF file based on the product name
-            file_name = f"{product_info.get('product_name', 'Recipe')}.pdf"
-            
+            file_name = f"{product_info.get('Name', 'Recipe')}.pdf"
             st.download_button(
                 label="Download PDF",
                 data=pdf_file,
@@ -134,5 +158,6 @@ def page_4():
         else:
             st.warning("Please enter the name of the person who prepared the recipe.")
 
-# Run the function to display page 4
+
+# Exécuter la fonction pour afficher la page 4
 page_4()
