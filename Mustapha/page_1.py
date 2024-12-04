@@ -12,7 +12,7 @@ def page_1():
         </style>
         """, unsafe_allow_html=True)
 
-    st.title("Product Informations")
+    st.title("Product Information")
 
     # Input for basic information
     product_name = st.text_input("Product Name", value=st.session_state.product_info.get("product_name", ""))
@@ -22,7 +22,7 @@ def page_1():
     # Unit selection
     unit = st.selectbox(
         "Unit",
-        options=["kg", "g", "tablet", "capsule"],
+        options=["kg", "g", "tablets", "capsules"],
         index=0  # Default option
     )
 
