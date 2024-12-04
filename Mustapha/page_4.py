@@ -31,7 +31,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.add_page()
 
     # Logo
-    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
+    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)
 
