@@ -5,10 +5,14 @@ import os
 import pandas as pd
 
 def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data):
-    """Generate a professionally designed PDF with product info, a materials table, and detailed steps."""
+    """Generate a professionally designed PDF with proper character handling."""
     from fpdf import FPDF
     from io import BytesIO
     import os
+
+    def clean_text(text):
+        """Remove or replace unsupported characters."""
+        return text.encode('latin1', 'replace').decode('latin1')
 
     class PDF(FPDF):
         def header(self):
@@ -30,24 +34,21 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)
-       
 
-     # Prepared by
+    # Prepared by
     pdf.set_xy(10, 30)
     pdf.set_font("Arial", 'B', 12)
     pdf.set_text_color(0, 0, 128)
-    pdf.cell(0, 10, txt=f"Prepared by: {prepared_by}", ln=True)
-    
-    
+    pdf.cell(0, 10, txt=clean_text(f"Prepared by: {prepared_by}"), ln=True)
+
     # Product Information
-    pdf.set_xy(10, 40)
     pdf.set_font("Arial", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Product Information", align="C", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.set_text_color(0, 0, 0)
     for key, value in product_info.items():
-        pdf.cell(0, 8, txt=f"{key}: {value}", ln=True)
+        pdf.cell(0, 8, txt=clean_text(f"{key}: {value}"), ln=True)
     pdf.ln(5)
 
     # Materials Table
@@ -62,23 +63,32 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.cell(40, 8, "Step", border=1, fill=True, align="C")
     pdf.ln()
 
+    # Table rows
     pdf.set_fill_color(245, 245, 245)
     for idx, row in ui_table_data.iterrows():
-        fill = idx % 2 == 0
-        pdf.cell(90, 8, str(row["Materials"]), border=1, fill=fill, align="L")
-        pdf.cell(60, 8, str(row["Value"]), border=1, fill=fill, align="L")
-        pdf.cell(40, 8, str(row["Step"]), border=1, fill=fill, align="C")
+        fill = idx % 2 == 0  # Alternate row background color
+        pdf.cell(90, 8, txt=clean_text(str(row["Materials"])), border=1, fill=fill, align="L")
+        pdf.cell(60, 8, txt=clean_text(str(row["Value"])), border=1, fill=fill, align="L")
+        pdf.cell(40, 8, txt=clean_text(str(row["Step"])), border=1, fill=fill, align="C")
         pdf.ln()
 
     # Process Steps
     for idx, step in enumerate(steps, start=1):
         pdf.add_page()
+
+        # Step title
+        pdf.set_fill_color(220, 240, 220)
+        pdf.set_text_color(0, 51, 0)
         pdf.set_font("Arial", 'B', 12)
-        pdf.set_fill_color(220, 240, 240)
-        pdf.set_text_color(0, 0, 128)
-        pdf.cell(0, 10, f"Step {idx}: {step['step_type']}", border=0, ln=True, fill=True)
+        pdf.cell(0, 10, txt=clean_text(f"Step {idx}:"), ln=True, fill=True)
+
+        # Section and step type
         pdf.set_text_color(0, 102, 204)
-        pdf.cell(0, 8, f"Section: {step['section']}", ln=True)
+        pdf.set_font("Arial", 'B', 11)
+        pdf.cell(0, 8, txt=clean_text(f"  Section: {step['section']}"), ln=True)
+        pdf.cell(0, 8, txt=clean_text(f"  Step: {step['step_type']}"), ln=True)
+
+        # Step details
         pdf.set_font("Arial", size=10)
         pdf.set_text_color(0, 0, 0)
 
@@ -86,27 +96,27 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
         if "selected_items" in step.get("step_fields", {}):
             items_used = step["step_fields"]["selected_items"]
             if items_used:
-                pdf.cell(0, 8, "Items Used:", ln=True)
+                pdf.cell(0, 8, txt="    Items Used:", ln=True)
                 for item in items_used:
-                    pdf.cell(0, 8, f"  - {item}", ln=True)
+                    pdf.cell(0, 8, txt=f"      - {clean_text(item)}", ln=True)
 
-        # Details of Step
+        # Display other fields
         for field, value in step.get("step_fields", {}).items():
-            if field in ["selected_items", "use_full_quantity"]:  # Skip redundant fields
+            if field in ["selected_items", "use_full_quantity"]:  # Skip already handled fields
                 continue
             if field == "strengths" and isinstance(value, list):
                 for i, strength in enumerate(value, 1):
                     strength_value = strength.get("Strength value (mg)", "N/A")
-                    pdf.cell(0, 8, f"Strength {i} ({strength_value} mg):", ln=True)
-                    for strength_key, strength_value in strength.items():
-                        if strength_key == "Strength value (mg)":
+                    pdf.cell(0, 8, txt=clean_text(f"    Strength {i} ({strength_value} mg):"), ln=True)
+                    for key, val in strength.items():
+                        if key == "Strength value (mg)":
                             continue
-                        pdf.cell(0, 8, f"    - {strength_key}: {strength_value}", ln=True)
+                        pdf.cell(0, 8, txt=f"      - {clean_text(key)}: {clean_text(str(val))}", ln=True)
             else:
-                pdf.cell(0, 8, f"{field}: {value if value else 'N/A'}", ln=True)
+                pdf.cell(0, 8, txt=clean_text(f"    {field}: {value if value else 'N/A'}"), ln=True)
 
         # Timestamp
-        pdf.cell(0, 8, f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
+        pdf.cell(0, 8, txt=clean_text(f"    Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}"), ln=True)
 
     # Output PDF
     pdf_output = BytesIO()
