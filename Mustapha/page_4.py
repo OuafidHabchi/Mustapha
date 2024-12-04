@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data):
-    """Generate a professionally designed PDF with proper character handling."""
+    """Generate a well-designed PDF with product info, a materials table, and detailed steps."""
     from fpdf import FPDF
     from io import BytesIO
     import os
@@ -92,7 +92,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
         pdf.set_font("Arial", size=10)
         pdf.set_text_color(0, 0, 0)
 
-        # Items Used
+        # Display "Items Used"
         if "selected_items" in step.get("step_fields", {}):
             items_used = step["step_fields"]["selected_items"]
             if items_used:
@@ -100,14 +100,23 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
                 for item in items_used:
                     pdf.cell(0, 8, txt=f"      - {clean_text(item)}", ln=True)
 
+        # Display "Item to Rinse With" with "Use Full Quantity" inline
+        if "Item to Rinse With" in step.get("step_fields", {}):
+            item_to_rinse = step["step_fields"]["Item to Rinse With"]
+            use_full_quantity = step["step_fields"].get("use_full_quantity", False)
+            use_full_quantity_text = "Yes" if use_full_quantity else "No"
+            pdf.cell(0, 8, txt=f"    Item to Rinse With: {clean_text(item_to_rinse)} (Use full quantity: {use_full_quantity_text})", ln=True)
+
         # Display other fields
         for field, value in step.get("step_fields", {}).items():
-            if field in ["selected_items", "use_full_quantity"]:  # Skip already handled fields
+            if field in ["selected_items", "Item to Rinse With", "use_full_quantity"]:  # Skip already handled fields
                 continue
             if field == "strengths" and isinstance(value, list):
                 for i, strength in enumerate(value, 1):
+                    # Retrieve the "Strength value (mg)" if it exists
                     strength_value = strength.get("Strength value (mg)", "N/A")
                     pdf.cell(0, 8, txt=clean_text(f"    Strength {i} ({strength_value} mg):"), ln=True)
+                    # Display other properties of the strength
                     for key, val in strength.items():
                         if key == "Strength value (mg)":
                             continue
@@ -123,6 +132,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf_output.write(pdf.output(dest='S').encode('latin1'))
     pdf_output.seek(0)
     return pdf_output
+
 
 
 
