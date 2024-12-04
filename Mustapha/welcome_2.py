@@ -62,7 +62,7 @@ if "steps" not in st.session_state:
     st.session_state.steps = []
 
 # Function to show the progress bar
-ddef show_progress():
+def show_progress():
     progress_percentage = ((st.session_state.current_step - 1) / 3) * 100
     st.markdown(
         f"""
