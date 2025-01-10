@@ -4,7 +4,7 @@ from io import BytesIO
 import os
 import pandas as pd
 
-def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data) :
+def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data):
     """Generate a professionally designed PDF with product info, a Equipements table, and detailed steps."""
     from fpdf import FPDF
     from io import BytesIO
@@ -12,20 +12,27 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
 
     class PDF(FPDF):
         def header(self):
-            self.set_font("Arial", "B", 12)
+            self.set_font("DejaVu", "B", 12)  # Using Unicode-compatible font
             self.set_text_color(50, 50, 50)
             self.cell(0, 10, "Process Documentation", align="C", ln=True)
             self.ln(10)
 
         def footer(self):
             self.set_y(-15)
-            self.set_font("Arial", "I", 8)
+            self.set_font("DejaVu", "I", 8)  # Using Unicode-compatible font
             self.set_text_color(128)
             self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
     # Initialize PDF
     pdf = PDF()
     pdf.set_auto_page_break(auto=True, margin=15)
+
+    # Add custom font for Unicode support
+    font_path = os.path.join(os.getcwd(), "fonts", "DejaVuSans.ttf")
+    pdf.add_font("DejaVu", "", font_path, uni=True)
+    pdf.add_font("DejaVu", "B", font_path, uni=True)
+    pdf.add_font("DejaVu", "I", font_path, uni=True)
+
     pdf.add_page()
 
     # Logo
@@ -35,26 +42,26 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
 
     # Prepared by
     pdf.set_xy(10, 30)
-    pdf.set_font("Arial", 'B', 12)
+    pdf.set_font("DejaVu", "B", 12)
     pdf.set_text_color(0, 0, 128)
     pdf.cell(0, 10, txt=f"Prepared by: {prepared_by}", ln=True)
 
     # Product Information
     pdf.set_xy(10, 40)
-    pdf.set_font("Arial", 'B', 14)
+    pdf.set_font("DejaVu", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Product Information", align="C", ln=True)
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("DejaVu", size=12)
     pdf.set_text_color(0, 0, 0)
     for key, value in product_info.items():
         pdf.cell(0, 8, txt=f"{key}: {value}", ln=True)
     pdf.ln(5)
 
     # Equipements Table
-    pdf.set_font("Arial", 'B', 14)
+    pdf.set_font("DejaVu", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Equipements Table", align="C", ln=True)
-    pdf.set_font("Arial", size=10)
+    pdf.set_font("DejaVu", size=10)
     pdf.set_text_color(0, 0, 0)
     pdf.set_fill_color(200, 200, 200)
     pdf.cell(90, 8, "Equipements", border=1, fill=True, align="C")
@@ -73,13 +80,13 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     # Process Steps
     for idx, step in enumerate(steps, start=1):
         pdf.add_page()
-        pdf.set_font("Arial", 'B', 12)
+        pdf.set_font("DejaVu", 'B', 12)
         pdf.set_fill_color(220, 240, 240)
         pdf.set_text_color(0, 0, 128)
         pdf.cell(0, 10, f"Step {idx}: {step['step_type']}", border=0, ln=True, fill=True)
         pdf.set_text_color(0, 102, 204)
         pdf.cell(0, 8, f"Section: {step['section']}", ln=True)
-        pdf.set_font("Arial", size=10)
+        pdf.set_font("DejaVu", size=10)
         pdf.set_text_color(0, 0, 0)
 
         # Items Used
@@ -110,9 +117,10 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
 
     # Output PDF
     pdf_output = BytesIO()
-    pdf.output(pdf_output, dest='F')  # Avoid forcing an unsupported encoding
+    pdf.output(pdf_output, dest='F')  # Write directly to BytesIO
     pdf_output.seek(0)
     return pdf_output
+
 
 
 
