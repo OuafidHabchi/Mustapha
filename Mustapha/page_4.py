@@ -8,6 +8,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     """Generate a professionally designed PDF with product info, a Equipements table, and detailed steps."""
     from fpdf import FPDF
     from io import BytesIO
+    import os
     import unicodedata
 
     # Helper function to normalize text
@@ -33,6 +34,15 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf = PDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
+
+    # Logo (Photo)
+    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
+    if os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=8, w=30)  # Ensure the image is correctly loaded
+    else:
+        pdf.set_font("Arial", "B", 10)
+        pdf.set_text_color(255, 0, 0)
+        pdf.cell(0, 10, "Logo not found", ln=True)
 
     # Prepared by
     pdf.set_xy(10, 30)
