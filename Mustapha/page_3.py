@@ -312,15 +312,10 @@ def initialize_step_fields(step_type, key, step_fields_data=None):
                 value=step_fields_data.get("Dew Point (°C)", "") if step_fields_data else "",
                 key=f"dew_point_drying_{key}"
             ),
-            "Product Temperature (°C)": st.text_input(
-                "Product Temperature (°C)",
-                value=step_fields_data.get("Product Temperature (°C)", "") if step_fields_data else "",
-                key=f"product_temperature_{key}"
-            ),
-            "Outlet Temperature (°C)": st.text_input(
-                "Outlet Temperature (°C)",
-                value=step_fields_data.get("Outlet Temperature (°C)", "") if step_fields_data else "",
-                key=f"outlet_temperature_drying_{key}"
+            "Start Performing LOD": st.text_input(
+                "Start Performing LOD",
+                value=step_fields_data.get("Start Performing LOD", "") if step_fields_data else "",
+                key=f"start_performing_lod_{key}"
             ),
             "LOD (%)": st.text_input(
                 "LOD (%)",
@@ -769,13 +764,17 @@ def page_3():
             f"Step {i} result" for i in range(1, len(st.session_state.steps) + 1)
         ]
         
-        # Multiselect pour choisir les items
-        selected_items = st.multiselect(
-            "Select the items for this step",
-            options=options,
-            default=selected_items,
-            help="Choose the items to use in this step."
-        )
+       # Multiselect pour choisir les items (APRÈS MODIFICATION)
+        if step_type != "Preheating Parameters":  # Pas de sélection d'items pour cette étape
+            selected_items = st.multiselect(
+                "Select the items for this step",
+                options=options,
+                default=selected_items,
+                help="Choose the items to use in this step."
+            )
+        else:
+            selected_items = []  # Pas de sélection d'items
+
 
 
         # Initialisation des champs spécifiques au type de step
