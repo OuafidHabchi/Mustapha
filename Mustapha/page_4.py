@@ -5,14 +5,10 @@ import os
 import pandas as pd
 
 def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data):
-    """Generate a well-designed PDF with product info, a materials table, and detailed steps."""
+    """Generate a professionally designed PDF with product info, a Equipements table, and detailed steps."""
     from fpdf import FPDF
     from io import BytesIO
     import os
-
-    def clean_text(text):
-        """Remove or replace unsupported characters."""
-        return text.encode('latin1', 'replace').decode('latin1')
 
     class PDF(FPDF):
         def header(self):
@@ -31,108 +27,92 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.add_page()
 
     # Logo
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
+    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)
+       
 
-    # Prepared by
+     # Prepared by
     pdf.set_xy(10, 30)
     pdf.set_font("Arial", 'B', 12)
     pdf.set_text_color(0, 0, 128)
-    pdf.cell(0, 10, txt=clean_text(f"Prepared by: {prepared_by}"), ln=True)
-
+    pdf.cell(0, 10, txt=f"Prepared by: {prepared_by}", ln=True)
+    
+    
     # Product Information
+    pdf.set_xy(10, 40)
     pdf.set_font("Arial", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Product Information", align="C", ln=True)
     pdf.set_font("Arial", size=12)
     pdf.set_text_color(0, 0, 0)
     for key, value in product_info.items():
-        pdf.cell(0, 8, txt=clean_text(f"{key}: {value}"), ln=True)
+        pdf.cell(0, 8, txt=f"{key}: {value}", ln=True)
     pdf.ln(5)
 
-    # Materials Table
+    # Equipements Table
     pdf.set_font("Arial", 'B', 14)
     pdf.set_text_color(0, 102, 204)
-    pdf.cell(0, 10, "Materials Table", align="C", ln=True)
+    pdf.cell(0, 10, "Equipements Table", align="C", ln=True)
     pdf.set_font("Arial", size=10)
     pdf.set_text_color(0, 0, 0)
     pdf.set_fill_color(200, 200, 200)
-    pdf.cell(90, 8, "Materials", border=1, fill=True, align="C")
+    pdf.cell(90, 8, "Equipements", border=1, fill=True, align="C")
     pdf.cell(60, 8, "Value", border=1, fill=True, align="C")
     pdf.cell(40, 8, "Step", border=1, fill=True, align="C")
     pdf.ln()
 
-    # Table rows
     pdf.set_fill_color(245, 245, 245)
     for idx, row in ui_table_data.iterrows():
-        fill = idx % 2 == 0  # Alternate row background color
-        pdf.cell(90, 8, txt=clean_text(str(row["Materials"])), border=1, fill=fill, align="L")
-        pdf.cell(60, 8, txt=clean_text(str(row["Value"])), border=1, fill=fill, align="L")
-        pdf.cell(40, 8, txt=clean_text(str(row["Step"])), border=1, fill=fill, align="C")
+        fill = idx % 2 == 0
+        pdf.cell(90, 8, str(row["Equipements"]), border=1, fill=fill, align="L")
+        pdf.cell(60, 8, str(row["Value"]), border=1, fill=fill, align="L")
+        pdf.cell(40, 8, str(row["Step"]), border=1, fill=fill, align="C")
         pdf.ln()
 
     # Process Steps
     for idx, step in enumerate(steps, start=1):
         pdf.add_page()
-
-        # Step title
-        pdf.set_fill_color(220, 240, 220)
-        pdf.set_text_color(0, 51, 0)
         pdf.set_font("Arial", 'B', 12)
-        pdf.cell(0, 10, txt=clean_text(f"Step {idx}:"), ln=True, fill=True)
-
-        # Section and step type
+        pdf.set_fill_color(220, 240, 240)
+        pdf.set_text_color(0, 0, 128)
+        pdf.cell(0, 10, f"Step {idx}: {step['step_type']}", border=0, ln=True, fill=True)
         pdf.set_text_color(0, 102, 204)
-        pdf.set_font("Arial", 'B', 11)
-        pdf.cell(0, 8, txt=clean_text(f"  Section: {step['section']}"), ln=True)
-        pdf.cell(0, 8, txt=clean_text(f"  Step: {step['step_type']}"), ln=True)
-
-        # Step details
+        pdf.cell(0, 8, f"Section: {step['section']}", ln=True)
         pdf.set_font("Arial", size=10)
         pdf.set_text_color(0, 0, 0)
 
-        # Display "Items Used"
+        # Items Used
         if "selected_items" in step.get("step_fields", {}):
             items_used = step["step_fields"]["selected_items"]
             if items_used:
-                pdf.cell(0, 8, txt="    Items Used:", ln=True)
+                pdf.cell(0, 8, "Items Used:", ln=True)
                 for item in items_used:
-                    pdf.cell(0, 8, txt=f"      - {clean_text(item)}", ln=True)
+                    pdf.cell(0, 8, f"  - {item}", ln=True)
 
-        # Display "Item to Rinse With" with "Use Full Quantity" inline
-        if "Item to Rinse With" in step.get("step_fields", {}):
-            item_to_rinse = step["step_fields"]["Item to Rinse With"]
-            use_full_quantity = step["step_fields"].get("use_full_quantity", False)
-            use_full_quantity_text = "Yes" if use_full_quantity else "No"
-            pdf.cell(0, 8, txt=f"    Item to Rinse With: {clean_text(item_to_rinse)} (Use full quantity: {use_full_quantity_text})", ln=True)
-
-        # Display other fields
+        # Details of Step
         for field, value in step.get("step_fields", {}).items():
-            if field in ["selected_items", "Item to Rinse With", "use_full_quantity"]:  # Skip already handled fields
+            if field in ["selected_items", "use_full_quantity"]:  # Skip redundant fields
                 continue
             if field == "strengths" and isinstance(value, list):
                 for i, strength in enumerate(value, 1):
-                    # Retrieve the "Strength value (mg)" if it exists
                     strength_value = strength.get("Strength value (mg)", "N/A")
-                    pdf.cell(0, 8, txt=clean_text(f"    Strength {i} ({strength_value} mg):"), ln=True)
-                    # Display other properties of the strength
-                    for key, val in strength.items():
-                        if key == "Strength value (mg)":
+                    pdf.cell(0, 8, f"Strength {i} ({strength_value} mg):", ln=True)
+                    for strength_key, strength_value in strength.items():
+                        if strength_key == "Strength value (mg)":
                             continue
-                        pdf.cell(0, 8, txt=f"      - {clean_text(key)}: {clean_text(str(val))}", ln=True)
+                        pdf.cell(0, 8, f"    - {strength_key}: {strength_value}", ln=True)
             else:
-                pdf.cell(0, 8, txt=clean_text(f"    {field}: {value if value else 'N/A'}"), ln=True)
+                pdf.cell(0, 8, f"{field}: {value if value else 'N/A'}", ln=True)
 
         # Timestamp
-        pdf.cell(0, 8, txt=clean_text(f"    Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}"), ln=True)
+        pdf.cell(0, 8, f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
 
     # Output PDF
     pdf_output = BytesIO()
     pdf_output.write(pdf.output(dest='S').encode('latin1'))
     pdf_output.seek(0)
     return pdf_output
-
 
 
 
@@ -182,7 +162,7 @@ def page_4():
             value = step.get("step_fields", {}).get(field, None)
             if value:  # N'inclure que si une valeur existe
                 table_rows.append({
-                    "Materials": field,
+                    "Equipements": field,
                     "Value": value,
                     "Step": f"Step {idx}"
                 })
@@ -195,25 +175,25 @@ def page_4():
                     press_type = strength.get("Press Type/Model", None)
                     if press_type:
                         table_rows.append({
-                            "Materials": f"PRESS TYPE/MODEL (Strength {i})",  # Inclure le numéro de strength
+                            "Equipements": f"PRESS TYPE/MODEL (Strength {i})",  # Inclure le numéro de strength
                             "Value": press_type,
                             "Step": f"Step {idx}"
                         })
 
     # Afficher le tableau
-    st.subheader("Materials Table")
+    st.subheader("Equipements Table")
     if table_rows:
         # Générer le tableau en HTML pour un style propre
         table_html = "<table style='width:100%; border-collapse:collapse; text-align:left;'>"
         table_html += "<tr style='background-color:#f2f2f2;'>"
-        table_html += "<th style='border:1px solid black; padding:8px;'>Materials</th>"
+        table_html += "<th style='border:1px solid black; padding:8px;'>Equipements</th>"
         table_html += "<th style='border:1px solid black; padding:8px;'>Value</th>"
         table_html += "<th style='border:1px solid black; padding:8px;'>Step</th>"
         table_html += "</tr>"
 
         for row in table_rows:
             table_html += "<tr>"
-            table_html += f"<td style='border:1px solid black; padding:8px;'>{row['Materials']}</td>"
+            table_html += f"<td style='border:1px solid black; padding:8px;'>{row['Equipements']}</td>"
             table_html += f"<td style='border:1px solid black; padding:8px;'>{row['Value']}</td>"
             table_html += f"<td style='border:1px solid black; padding:8px;'>{row['Step']}</td>"
             table_html += "</tr>"
@@ -222,7 +202,7 @@ def page_4():
 
         st.markdown(table_html, unsafe_allow_html=True)
     else:
-        st.info("No relevant materials found to summarize.")
+        st.info("No relevant Equipements found to summarize.")
     # Create a DataFrame for the UI table
     ui_table_data = pd.DataFrame(table_rows)
 
