@@ -9,6 +9,11 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     from fpdf import FPDF
     from io import BytesIO
     import os
+    from unicodedata import normalize
+
+    # Helper function to normalize text
+    def normalize_text(text):
+        return normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
 
     class PDF(FPDF):
         def header(self):
@@ -30,15 +35,13 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)
-       
 
-     # Prepared by
+    # Prepared by
     pdf.set_xy(10, 30)
     pdf.set_font("Arial", 'B', 12)
     pdf.set_text_color(0, 0, 128)
-    pdf.cell(0, 10, txt=f"Prepared by: {prepared_by}", ln=True)
-    
-    
+    pdf.cell(0, 10, txt=f"Prepared by: {normalize_text(prepared_by)}", ln=True)
+
     # Product Information
     pdf.set_xy(10, 40)
     pdf.set_font("Arial", 'B', 14)
@@ -47,7 +50,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.set_font("Arial", size=12)
     pdf.set_text_color(0, 0, 0)
     for key, value in product_info.items():
-        pdf.cell(0, 8, txt=f"{key}: {value}", ln=True)
+        pdf.cell(0, 8, txt=f"{key}: {normalize_text(value)}", ln=True)
     pdf.ln(5)
 
     # Equipements Table
@@ -65,9 +68,9 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.set_fill_color(245, 245, 245)
     for idx, row in ui_table_data.iterrows():
         fill = idx % 2 == 0
-        pdf.cell(90, 8, str(row["Equipements"]), border=1, fill=fill, align="L")
-        pdf.cell(60, 8, str(row["Value"]), border=1, fill=fill, align="L")
-        pdf.cell(40, 8, str(row["Step"]), border=1, fill=fill, align="C")
+        pdf.cell(90, 8, normalize_text(str(row["Equipements"])), border=1, fill=fill, align="L")
+        pdf.cell(60, 8, normalize_text(str(row["Value"])), border=1, fill=fill, align="L")
+        pdf.cell(40, 8, normalize_text(str(row["Step"])), border=1, fill=fill, align="C")
         pdf.ln()
 
     # Process Steps
@@ -76,9 +79,9 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
         pdf.set_font("Arial", 'B', 12)
         pdf.set_fill_color(220, 240, 240)
         pdf.set_text_color(0, 0, 128)
-        pdf.cell(0, 10, f"Step {idx}: {step['step_type']}", border=0, ln=True, fill=True)
+        pdf.cell(0, 10, f"Step {idx}: {normalize_text(step['step_type'])}", border=0, ln=True, fill=True)
         pdf.set_text_color(0, 102, 204)
-        pdf.cell(0, 8, f"Section: {step['section']}", ln=True)
+        pdf.cell(0, 8, f"Section: {normalize_text(step['section'])}", ln=True)
         pdf.set_font("Arial", size=10)
         pdf.set_text_color(0, 0, 0)
 
@@ -88,7 +91,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
             if items_used:
                 pdf.cell(0, 8, "Items Used:", ln=True)
                 for item in items_used:
-                    pdf.cell(0, 8, f"  - {item}", ln=True)
+                    pdf.cell(0, 8, f"  - {normalize_text(item)}", ln=True)
 
         # Details of Step
         for field, value in step.get("step_fields", {}).items():
@@ -97,20 +100,20 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
             if field == "strengths" and isinstance(value, list):
                 for i, strength in enumerate(value, 1):
                     strength_value = strength.get("Strength value (mg)", "N/A")
-                    pdf.cell(0, 8, f"Strength {i} ({strength_value} mg):", ln=True)
+                    pdf.cell(0, 8, f"Strength {i} ({normalize_text(str(strength_value))} mg):", ln=True)
                     for strength_key, strength_value in strength.items():
                         if strength_key == "Strength value (mg)":
                             continue
-                        pdf.cell(0, 8, f"    - {strength_key}: {strength_value}", ln=True)
+                        pdf.cell(0, 8, f"    - {normalize_text(str(strength_key))}: {normalize_text(str(strength_value))}", ln=True)
             else:
-                pdf.cell(0, 8, f"{field}: {value if value else 'N/A'}", ln=True)
+                pdf.cell(0, 8, f"{normalize_text(field)}: {normalize_text(str(value)) if value else 'N/A'}", ln=True)
 
         # Timestamp
         pdf.cell(0, 8, f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
 
     # Output PDF
     pdf_output = BytesIO()
-    pdf_output.write(pdf.output(dest='S').encode('latin1'))
+    pdf_output.write(pdf.output(dest='S').encode('latin1', 'replace'))  # Safely replace unsupported characters
     pdf_output.seek(0)
     return pdf_output
 
