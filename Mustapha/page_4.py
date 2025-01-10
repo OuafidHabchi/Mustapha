@@ -8,60 +8,54 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     """Generate a professionally designed PDF with product info, a Equipements table, and detailed steps."""
     from fpdf import FPDF
     from io import BytesIO
-    import os
+    import unicodedata
+
+    # Helper function to normalize text
+    def normalize_text(text):
+        if isinstance(text, str):
+            return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+        return text
 
     class PDF(FPDF):
         def header(self):
-            self.set_font("DejaVu", "B", 12)  # Using Unicode-compatible font
+            self.set_font("Arial", "B", 12)
             self.set_text_color(50, 50, 50)
             self.cell(0, 10, "Process Documentation", align="C", ln=True)
             self.ln(10)
 
         def footer(self):
             self.set_y(-15)
-            self.set_font("DejaVu", "I", 8)  # Using Unicode-compatible font
+            self.set_font("Arial", "I", 8)
             self.set_text_color(128)
             self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
     # Initialize PDF
     pdf = PDF()
     pdf.set_auto_page_break(auto=True, margin=15)
-
-    # Add custom font for Unicode support
-    font_path = os.path.join(os.getcwd(), "fonts", "DejaVuSans.ttf")
-    pdf.add_font("DejaVu", "", font_path, uni=True)
-    pdf.add_font("DejaVu", "B", font_path, uni=True)
-    pdf.add_font("DejaVu", "I", font_path, uni=True)
-
     pdf.add_page()
-
-    # Logo
-    logo_path = os.path.join(os.getcwd(), "options", "images", "image.png")
-    if os.path.exists(logo_path):
-        pdf.image(logo_path, x=10, y=8, w=30)
 
     # Prepared by
     pdf.set_xy(10, 30)
-    pdf.set_font("DejaVu", "B", 12)
+    pdf.set_font("Arial", 'B', 12)
     pdf.set_text_color(0, 0, 128)
-    pdf.cell(0, 10, txt=f"Prepared by: {prepared_by}", ln=True)
+    pdf.cell(0, 10, txt=f"Prepared by: {normalize_text(prepared_by)}", ln=True)
 
     # Product Information
     pdf.set_xy(10, 40)
-    pdf.set_font("DejaVu", 'B', 14)
+    pdf.set_font("Arial", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Product Information", align="C", ln=True)
-    pdf.set_font("DejaVu", size=12)
+    pdf.set_font("Arial", size=12)
     pdf.set_text_color(0, 0, 0)
     for key, value in product_info.items():
-        pdf.cell(0, 8, txt=f"{key}: {value}", ln=True)
+        pdf.cell(0, 8, txt=f"{key}: {normalize_text(value)}", ln=True)
     pdf.ln(5)
 
     # Equipements Table
-    pdf.set_font("DejaVu", 'B', 14)
+    pdf.set_font("Arial", 'B', 14)
     pdf.set_text_color(0, 102, 204)
     pdf.cell(0, 10, "Equipements Table", align="C", ln=True)
-    pdf.set_font("DejaVu", size=10)
+    pdf.set_font("Arial", size=10)
     pdf.set_text_color(0, 0, 0)
     pdf.set_fill_color(200, 200, 200)
     pdf.cell(90, 8, "Equipements", border=1, fill=True, align="C")
@@ -72,21 +66,21 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.set_fill_color(245, 245, 245)
     for idx, row in ui_table_data.iterrows():
         fill = idx % 2 == 0
-        pdf.cell(90, 8, row["Equipements"], border=1, fill=fill, align="L")
-        pdf.cell(60, 8, row["Value"], border=1, fill=fill, align="L")
-        pdf.cell(40, 8, row["Step"], border=1, fill=fill, align="C")
+        pdf.cell(90, 8, normalize_text(row["Equipements"]), border=1, fill=fill, align="L")
+        pdf.cell(60, 8, normalize_text(row["Value"]), border=1, fill=fill, align="L")
+        pdf.cell(40, 8, normalize_text(row["Step"]), border=1, fill=fill, align="C")
         pdf.ln()
 
     # Process Steps
     for idx, step in enumerate(steps, start=1):
         pdf.add_page()
-        pdf.set_font("DejaVu", 'B', 12)
+        pdf.set_font("Arial", 'B', 12)
         pdf.set_fill_color(220, 240, 240)
         pdf.set_text_color(0, 0, 128)
-        pdf.cell(0, 10, f"Step {idx}: {step['step_type']}", border=0, ln=True, fill=True)
+        pdf.cell(0, 10, f"Step {idx}: {normalize_text(step['step_type'])}", border=0, ln=True, fill=True)
         pdf.set_text_color(0, 102, 204)
-        pdf.cell(0, 8, f"Section: {step['section']}", ln=True)
-        pdf.set_font("DejaVu", size=10)
+        pdf.cell(0, 8, f"Section: {normalize_text(step['section'])}", ln=True)
+        pdf.set_font("Arial", size=10)
         pdf.set_text_color(0, 0, 0)
 
         # Items Used
@@ -95,7 +89,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
             if items_used:
                 pdf.cell(0, 8, "Items Used:", ln=True)
                 for item in items_used:
-                    pdf.cell(0, 8, f"  - {item}", ln=True)
+                    pdf.cell(0, 8, f"  - {normalize_text(item)}", ln=True)
 
         # Details of Step
         for field, value in step.get("step_fields", {}).items():
@@ -104,13 +98,13 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
             if field == "strengths" and isinstance(value, list):
                 for i, strength in enumerate(value, 1):
                     strength_value = strength.get("Strength value (mg)", "N/A")
-                    pdf.cell(0, 8, f"Strength {i} ({strength_value} mg):", ln=True)
+                    pdf.cell(0, 8, f"Strength {i} ({normalize_text(str(strength_value))} mg):", ln=True)
                     for strength_key, strength_value in strength.items():
                         if strength_key == "Strength value (mg)":
                             continue
-                        pdf.cell(0, 8, f"    - {strength_key}: {strength_value}", ln=True)
+                        pdf.cell(0, 8, f"    - {normalize_text(str(strength_key))}: {normalize_text(str(strength_value))}", ln=True)
             else:
-                pdf.cell(0, 8, f"{field}: {value if value else 'N/A'}", ln=True)
+                pdf.cell(0, 8, f"{normalize_text(field)}: {normalize_text(str(value)) if value else 'N/A'}", ln=True)
 
         # Timestamp
         pdf.cell(0, 8, f"Added on: {step['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
@@ -120,6 +114,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.output(pdf_output, dest='F')  # Write directly to BytesIO
     pdf_output.seek(0)
     return pdf_output
+
 
 
 
