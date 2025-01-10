@@ -312,9 +312,9 @@ def initialize_step_fields(step_type, key, step_fields_data=None):
                 value=step_fields_data.get("Dew Point (°C)", "") if step_fields_data else "",
                 key=f"dew_point_drying_{key}"
             ),
-            "Start Performing LOD": st.text_input(
-                "Start Performing LOD",
-                value=step_fields_data.get("Start Performing LOD", "") if step_fields_data else "",
+           "Product Temp to Start Performing LOD": st.text_input(
+                "Product Temp to Start Performing LOD",
+                value=step_fields_data.get("Product Temp to Start Performing LOD", "") if step_fields_data else "",
                 key=f"start_performing_lod_{key}"
             ),
             "LOD (%)": st.text_input(
