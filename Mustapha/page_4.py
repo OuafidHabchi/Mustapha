@@ -36,7 +36,7 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
     pdf.add_page()
 
     # Logo (Photo)
-    logo_path = os.path.join(os.getcwd(),"Mustapha", "options", "images", "image.png")
+    logo_path = os.path.join(os.getcwd(), "Mustapha", "options", "images", "image.png")
     if os.path.exists(logo_path):
         pdf.image(logo_path, x=10, y=8, w=30)  # Ensure the image is correctly loaded
     else:
@@ -121,8 +121,13 @@ def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data)
 
     # Output PDF
     pdf_output = BytesIO()
-    pdf.output(pdf_output, dest='F')  # Write directly to BytesIO
-    pdf_output.seek(0)
+    try:
+        pdf_data = pdf.output(dest='S').encode('latin1')  # Generate PDF content as a string
+        pdf_output.write(pdf_data)  # Write to BytesIO
+        pdf_output.seek(0)  # Reset the pointer
+    except Exception as e:
+        raise RuntimeError(f"Error generating PDF: {str(e)}")
+
     return pdf_output
 
 
