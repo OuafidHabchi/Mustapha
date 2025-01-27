@@ -2,7 +2,7 @@ import streamlit as st
 from fpdf import FPDF
 from io import BytesIO
 import os
-import pandas as pd
+import pandas as p
 
 def create_pdf_without_password(product_info, steps, prepared_by, ui_table_data):
     """Generate a professionally designed PDF with product info, a Equipements table, and detailed steps."""
